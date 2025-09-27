@@ -243,27 +243,27 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
                 pattern="[0-9]*"
                 value={questionCountInput}
                 onChange={(e) => {
-                  const digits = e.target.value.replace(/\D+/g, '').slice(0, 2)
+                  const digits = e.target.value.replace(/\D+/g, '')
                   setQuestionCountInput(digits)
                   const num = digits ? parseInt(digits, 10) : NaN
                   if (!Number.isNaN(num)) setQuestionCount(num); else setQuestionCount(null)
                 }}
                 onBlur={() => {
                   const num = parseInt(questionCountInput || '', 10)
-                  if (Number.isNaN(num)) {
+                  if (Number.isNaN(num) || num < 1) {
                     setQuestionCount(null)
                     setQuestionCountInput('')
                     return
                   }
-                  const clamped = Math.min(Math.max(1, num), 20)
-                  setQuestionCount(clamped)
-                  setQuestionCountInput(String(clamped))
+                  const normalized = Math.max(1, num)
+                  setQuestionCount(normalized)
+                  setQuestionCountInput(String(normalized))
                 }}
                 required
-                placeholder="1-20"
+                placeholder="Cantidad"
                 className="w-24 text-center"
               />
-              <Button type="button" variant="secondary" className="px-3" onClick={() => setQuestionCount((c) => { const base = typeof c === 'number' ? c : 0; const next = Math.min(20, base + 1); setQuestionCountInput(String(next)); return next; })} aria-label="Aumentar">+</Button>
+              <Button type="button" variant="secondary" className="px-3" onClick={() => setQuestionCount((c) => { const base = typeof c === 'number' ? c : 0; const next = base + 1; setQuestionCountInput(String(next)); return next; })} aria-label="Aumentar">+</Button>
             </div>
           </div>
           {error && <Alert intent="error" className="sm:col-span-3">{error}</Alert>}
@@ -302,27 +302,27 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
                     pattern="[0-9]*"
                     value={manualCountInput}
                     onChange={e => {
-                      const digits = e.target.value.replace(/\D+/g, '').slice(0, 2)
+                      const digits = e.target.value.replace(/\D+/g, '')
                       setManualCountInput(digits)
                       const num = digits ? parseInt(digits, 10) : NaN
                       if (!Number.isNaN(num)) setManualCount(num); else setManualCount(null)
                     }}
                     onBlur={() => {
                       const num = parseInt(manualCountInput || '', 10)
-                      if (Number.isNaN(num)) {
+                      if (Number.isNaN(num) || num < 1) {
                         setManualCount(null)
                         setManualCountInput('')
                         return
                       }
-                      const clamped = Math.min(Math.max(1, num), 20)
-                      setManualCount(clamped)
-                      setManualCountInput(String(clamped))
+                      const normalized = Math.max(1, num)
+                      setManualCount(normalized)
+                      setManualCountInput(String(normalized))
                     }}
                     required
-                    placeholder="1-20"
+                    placeholder="Cantidad"
                     className="w-24 text-center"
                   />
-                  <Button type="button" variant="secondary" className="px-3" onClick={() => setManualCount((c) => { const base = typeof c === 'number' ? c : 0; const next = Math.min(20, base + 1); setManualCountInput(String(next)); return next; })} aria-label="Aumentar">+</Button>
+                  <Button type="button" variant="secondary" className="px-3" onClick={() => setManualCount((c) => { const base = typeof c === 'number' ? c : 0; const next = base + 1; setManualCountInput(String(next)); return next; })} aria-label="Aumentar">+</Button>
                 </div>
               </div>
               <div className="flex justify-end gap-3">
