@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../AuthContext';
-import './ProfilePage.css';
+import { Card, CardBody, CardHeader } from '../components/ui/Card';
+import Alert from '../components/ui/Alert';
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -41,63 +42,61 @@ export default function ProfilePage() {
   }, [user]);
 
   if (loading) return (
-    <div className="profile-container">
-      <div className="profile-card">
-        <div className="profile-header">
-          <div className="profile-loading">Cargando perfil...</div>
-        </div>
-      </div>
+    <div className="container min-h-screen px-4 py-10">
+      <Card>
+        <CardBody>
+          <div className="loading-spinner" aria-busy="true">Cargando perfil...</div>
+        </CardBody>
+      </Card>
     </div>
   );
   return (
-    <div className="profile-container">
-      <div className="profile-card">
-        <div className="profile-header">
+    <div className="container min-h-screen px-4 py-8">
+      <Card className="mx-auto max-w-3xl">
+        <CardHeader className="flex items-center gap-4">
           <img
             src={`https://api.dicebear.com/7.x/identicon/svg?seed=${user?.uid || 'user'}`}
             alt="avatar"
-            className="profile-avatar"
+            className="h-16 w-16 rounded-full bg-white/10"
             loading="lazy"
             decoding="async"
           />
           <div>
-            <h2>{user?.displayName || user?.email}</h2>
-            <span className="profile-uid">UID: {user?.uid}</span>
+            <h2 className="text-2xl font-bold">{user?.displayName || user?.email}</h2>
+            <span className="text-sm text-white/70">UID: {user?.uid}</span>
           </div>
-        </div>
-        <div className="profile-stats">
-          <h3>Estadísticas</h3>
-          {apiError && (
-            <div className="error-message">{apiError}</div>
-          )}
+        </CardHeader>
+        <CardBody>
+          <h3 className="text-xl font-semibold mb-3">Estadísticas</h3>
+          {apiError && <Alert intent="error" className="mb-3">{apiError}</Alert>}
           {stats ? (
-            <div className="stats-grid">
-              <div className="stat-card">
-                <span className="stat-label">Partidas jugadas</span>
-                <span className="stat-value">{stats.gamesPlayed}</span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                <div className="text-sm text-white/70">Partidas jugadas</div>
+                <div className="text-2xl font-bold">{stats.gamesPlayed}</div>
               </div>
-              <div className="stat-card">
-                <span className="stat-label">Victorias</span>
-                <span className="stat-value">{stats.wins}</span>
+              <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                <div className="text-sm text-white/70">Victorias</div>
+                <div className="text-2xl font-bold">{stats.wins}</div>
               </div>
-              <div className="stat-card">
-                <span className="stat-label">Respuestas correctas</span>
-                <span className="stat-value">{stats.correctAnswers}</span>
+              <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                <div className="text-sm text-white/70">Respuestas correctas</div>
+                <div className="text-2xl font-bold">{stats.correctAnswers}</div>
               </div>
             </div>
           ) : (
             <>
-              <p>No hay estadísticas.</p>
+              <p className="text-white/70">No hay estadísticas.</p>
               {apiRaw && (
-                <details>
-                  <summary>Respuesta de la API</summary>
-                  <pre>{JSON.stringify(apiRaw, null, 2)}</pre>
+                <details className="mt-2">
+                  <summary className="cursor-pointer underline">Respuesta de la API</summary>
+                  <pre className="mt-2 overflow-auto rounded-xl bg-black/40 p-3 text-xs">{JSON.stringify(apiRaw, null, 2)}</pre>
                 </details>
               )}
             </>
           )}
-        </div>
-      </div>
+        </CardBody>
+      </Card>
     </div>
   );
 }

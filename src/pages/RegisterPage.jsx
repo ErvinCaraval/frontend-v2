@@ -3,7 +3,9 @@ import { auth, db } from '../services/firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { useNavigate, Link } from 'react-router-dom';
-import './AuthPage.css';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import Alert from '../components/ui/Alert';
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
@@ -27,48 +29,34 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-container">
-        <div className="auth-header">
-          <h1>⚡ BrainBlitz</h1>
-          <h2>¡Únete a la diversión!</h2>
-          <p>Crea tu cuenta y comienza a jugar</p>
+    <div className="container min-h-screen px-4 py-10 grid place-items-center">
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl p-6">
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-extrabold">⚡ BrainBlitz</h1>
+          <h2 className="mt-2 text-xl font-bold">¡Únete a la diversión!</h2>
+          <p className="text-white/70">Crea tu cuenta y comienza a jugar</p>
         </div>
 
-        <form onSubmit={handleRegister} className="auth-form">
-          <div className="input-group">
-            <input 
-              type="email" 
-              placeholder="Correo electrónico" 
-              value={email} 
-              onChange={e => setEmail(e.target.value)} 
-              required 
-              disabled={loading}
-            />
+        <form onSubmit={handleRegister} className="grid gap-4">
+          <div>
+            <label className="block mb-1 text-sm text-white/80" htmlFor="email">Correo electrónico</label>
+            <Input id="email" type="email" placeholder="tú@correo.com" value={email} onChange={e => setEmail(e.target.value)} required disabled={loading} />
           </div>
-          <div className="input-group">
-            <input 
-              type="password" 
-              placeholder="Contraseña" 
-              value={password} 
-              onChange={e => setPassword(e.target.value)} 
-              required 
-              disabled={loading}
-            />
+          <div>
+            <label className="block mb-1 text-sm text-white/80" htmlFor="password">Contraseña</label>
+            <Input id="password" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required disabled={loading} />
           </div>
-          {error && (
-            <div className="error-message">
-              {error}
-            </div>
-          )}
-          <button type="submit" className="btn btn-primary btn-large" disabled={loading}>
-            {loading ? 'Creando cuenta...' : 'Crear cuenta'}
-          </button>
+
+          {error && <Alert intent="error">{error}</Alert>}
+
+          <Button type="submit" size="lg" disabled={loading}>
+            {loading ? 'Creando cuenta…' : 'Crear cuenta'}
+          </Button>
         </form>
 
-        <div className="auth-footer">
+        <div className="mt-6 text-center text-sm">
           <p>
-            ¿Ya tienes cuenta? <Link to="/login">Inicia sesión aquí</Link>
+            ¿Ya tienes cuenta? <Link className="underline" to="/login">Inicia sesión aquí</Link>
           </p>
         </div>
       </div>

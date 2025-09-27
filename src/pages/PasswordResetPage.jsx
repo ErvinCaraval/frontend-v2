@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { auth } from '../services/firebase';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { Link } from 'react-router-dom';
-import './AuthPage.css';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import Alert from '../components/ui/Alert';
 
 export default function PasswordResetPage() {
   const [email, setEmail] = useState('');
@@ -26,46 +28,31 @@ export default function PasswordResetPage() {
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-container">
-        <div className="auth-header">
-          <h1>⚡ BrainBlitz</h1>
-          <h2>Restablecer contraseña</h2>
-          <p>Ingresa tu correo para recibir un enlace de restablecimiento</p>
+    <div className="container min-h-screen px-4 py-10 grid place-items-center">
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl p-6">
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-extrabold">⚡ BrainBlitz</h1>
+          <h2 className="mt-2 text-xl font-bold">Restablecer contraseña</h2>
+          <p className="text-white/70">Ingresa tu correo para recibir un enlace de restablecimiento</p>
         </div>
 
-        <form onSubmit={handleReset} className="auth-form">
-          <div className="input-group">
-            <input 
-              type="email" 
-              placeholder="Correo electrónico" 
-              value={email} 
-              onChange={e => setEmail(e.target.value)} 
-              required 
-              disabled={loading}
-            />
+        <form onSubmit={handleReset} className="grid gap-4">
+          <div>
+            <label className="block mb-1 text-sm text-white/80" htmlFor="email">Correo electrónico</label>
+            <Input id="email" type="email" placeholder="tú@correo.com" value={email} onChange={e => setEmail(e.target.value)} required disabled={loading} />
           </div>
 
-          {error && (
-            <div className="error-message">
-              {error}
-            </div>
-          )}
+          {error && <Alert intent="error">{error}</Alert>}
+          {message && <Alert intent="success">{message}</Alert>}
 
-          {message && (
-            <div className="success-message">
-              {message}
-            </div>
-          )}
-
-          <button type="submit" className="btn btn-primary btn-large" disabled={loading}>
-            {loading ? 'Enviando...' : 'Enviar correo de restablecimiento'}
-          </button>
+          <Button type="submit" size="lg" disabled={loading}>
+            {loading ? 'Enviando…' : 'Enviar correo de restablecimiento'}
+          </Button>
         </form>
 
-        <div className="auth-footer">
+        <div className="mt-6 text-center text-sm">
           <p>
-            <Link to="/login">Volver al inicio de sesión</Link>
+            <Link className="underline" to="/login">Volver al inicio de sesión</Link>
           </p>
         </div>
       </div>

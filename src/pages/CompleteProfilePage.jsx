@@ -3,6 +3,9 @@ import { auth, db } from '../services/firebase';
 import { updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import Alert from '../components/ui/Alert';
 
 export default function CompleteProfilePage() {
   const [displayName, setDisplayName] = useState('');
@@ -31,27 +34,19 @@ export default function CompleteProfilePage() {
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-container">
-        <div className="auth-header">
-          <h1>Completa tu perfil</h1>
-          <p>Elige tu nombre para mostrar</p>
+    <div className="container min-h-screen px-4 py-10 grid place-items-center">
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl p-6">
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold">Completa tu perfil</h1>
+          <p className="text-white/70">Elige tu nombre para mostrar</p>
         </div>
-        <form onSubmit={handleSave} className="auth-form">
-          <div className="input-group">
-            <input
-              type="text"
-              placeholder="Nombre para mostrar"
-              value={displayName}
-              onChange={e => setDisplayName(e.target.value)}
-              required
-              disabled={loading}
-            />
+        <form onSubmit={handleSave} className="grid gap-4">
+          <div>
+            <label className="block mb-1 text-sm text-white/80" htmlFor="displayName">Nombre para mostrar</label>
+            <Input id="displayName" type="text" placeholder="Tu nombre" value={displayName} onChange={e => setDisplayName(e.target.value)} required disabled={loading} />
           </div>
-          {error && <div className="error-message">{error}</div>}
-          <button type="submit" className="btn btn-primary btn-large" disabled={loading}>
-            {loading ? 'Guardando...' : 'Guardar'}
-          </button>
+          {error && <Alert intent="error">{error}</Alert>}
+          <Button type="submit" size="lg" disabled={loading}>{loading ? 'Guardando…' : 'Guardar'}</Button>
         </form>
       </div>
     </div>
