@@ -45,12 +45,24 @@ export default function DashboardPage() {
   const connectSocket = async () => {
     const socket = await getSocket();
     if (socket.connected) return socket;
+    
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const connectionTimeout = isMobile ? 15000 : 8000; // Timeout más largo para móviles
+    
     await new Promise((resolve, reject) => {
+      const timeoutId = setTimeout(() => {
+        socket.off('connect', onConnect);
+        socket.off('connect_error', onError);
+        reject(new Error('Timeout de conexión'));
+      }, connectionTimeout);
+      
       const onConnect = () => {
+        clearTimeout(timeoutId);
         socket.off('connect_error', onError);
         resolve();
       };
       const onError = (err) => {
+        clearTimeout(timeoutId);
         socket.off('connect', onConnect);
         reject(err);
       };
@@ -83,12 +95,15 @@ export default function DashboardPage() {
       socket.off('gameCreated');
       socket.off('error');
       
-      // Temporizador de seguridad
+      // Temporizador de seguridad - más largo para dispositivos móviles
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const timeoutDuration = isMobile ? 20000 : 10000; // 20s para móviles, 10s para desktop
+      
       timeoutId = setTimeout(() => {
         setLoading(false);
         setErrorMessage('Tiempo de espera al crear la partida. Verifica tu conexión e inténtalo de nuevo.');
         setTimeout(() => setErrorMessage(''), 5000);
-      }, 10000);
+      }, timeoutDuration);
     // Obtener el token de autenticación del usuario
     let token = null;
     if (user && user.getIdToken) {
