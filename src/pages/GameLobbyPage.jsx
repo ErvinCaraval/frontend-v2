@@ -18,6 +18,7 @@ export default function GameLobbyPage() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const [connected, setConnected] = useState(false);
+  const [connectionTimeout, setConnectionTimeout] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -25,15 +26,41 @@ export default function GameLobbyPage() {
     (async () => {
       if (!user) return;
       const socket = await getSocket();
-      if (!socket.connected) socket.connect();
+      
+      // Timeout para evitar que se quede colgado en "Conectando a la sala..."
+      const connectionTimeoutId = setTimeout(() => {
+        if (!socket.connected) {
+          setConnectionTimeout(true);
+          console.warn('[GameLobbyPage] Timeout de conexión alcanzado');
+        }
+      }, 15000); // 15 segundos de timeout
+      
+      if (!socket.connected) {
+        socket.connect();
+      }
+      
       // UI optimista
       setPlayers((prev) => (prev.length === 0 ? [{ uid: user.uid, displayName: user.displayName || user.email, email: user.email }] : prev));
       setHostId((prev) => prev ?? user.uid);
 
-      function onConnect() { setConnected(true); }
-      function onDisconnect() { setConnected(false); }
+      function onConnect() { 
+        setConnected(true); 
+        setConnectionTimeout(false);
+        clearTimeout(connectionTimeoutId);
+      }
+      function onDisconnect() { 
+        setConnected(false); 
+      }
+      function onConnectError(error) {
+        console.error('[GameLobbyPage] Error de conexión:', error);
+        setConnectionTimeout(true);
+        clearTimeout(connectionTimeoutId);
+      }
+      
       socket.on('connect', onConnect);
       socket.on('disconnect', onDisconnect);
+      socket.on('connect_error', onConnectError);
+      
       socket.emit('joinGame', { 
         gameId, 
         uid: user.uid, 
@@ -56,11 +83,13 @@ export default function GameLobbyPage() {
 
       // cleanup
       return () => {
+        clearTimeout(connectionTimeoutId);
         socket.off('playerJoined');
         socket.off('gameStarted');
         socket.off('error');
         socket.off('connect', onConnect);
         socket.off('disconnect', onDisconnect);
+        socket.off('connect_error', onConnectError);
         disconnectSocket();
       };
     })();
@@ -79,6 +108,20 @@ export default function GameLobbyPage() {
     alert('Game code copied to clipboard!');
   };
 
+  const retryConnection = async () => {
+    setConnectionTimeout(false);
+    setConnected(false);
+    
+    try {
+      const socket = await getSocket();
+      socket.disconnect();
+      socket.connect();
+    } catch (error) {
+      console.error('[GameLobbyPage] Error al reintentar conexión:', error);
+      setConnectionTimeout(true);
+    }
+  };
+
   if (error) {
     return (
       <div className="min-h-screen container px-4 py-10">
@@ -92,7 +135,36 @@ export default function GameLobbyPage() {
 
   return (
     <div className="min-h-screen container px-4 py-8">
-      {!connected && <LoadingOverlay text="Conectando a la sala…" mobileOnly />}
+      {!connected && !connectionTimeout && <LoadingOverlay text="Conectando a la sala…" mobileOnly />}
+      {connectionTimeout && (
+        <div className="fixed inset-0 z-[3500] flex items-center justify-center px-6 md:hidden">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+          <div className="relative flex flex-col items-center gap-4 rounded-2xl border border-white/10 bg-bb-bg-primary/90 px-6 py-4 shadow-xl">
+            <div className="text-center">
+              <div className="text-lg font-semibold mb-2">⚠️ Problema de conexión</div>
+              <p className="text-sm text-white/80 mb-4">
+                No se pudo conectar a la sala. Esto puede deberse a problemas de red o el servidor.
+              </p>
+              <div className="flex gap-2">
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  onClick={retryConnection}
+                >
+                  🔄 Reintentar
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate('/dashboard')}
+                >
+                  🏠 Volver
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold">🎮 Sala de Juego</h1>
