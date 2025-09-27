@@ -9,11 +9,11 @@ export async function getSocket() {
   // Configuración optimizada para dispositivos móviles
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   
-  socket = io(SOCKET_URL, {
+  socket = io(SOCKET_URL, { 
     autoConnect: false,
     // Configuración para mejorar conectividad en móviles
     transports: isMobile ? ['polling', 'websocket'] : ['websocket', 'polling'],
-    timeout: isMobile ? 10000 : 8000, // Timeout más largo para móviles
+    timeout: isMobile ? 10000 : (import.meta.env.VITE_SOCKET_TIMEOUT || 8000),
     forceNew: true, // Forzar nueva conexión
     reconnection: true,
     reconnectionAttempts: isMobile ? 5 : 3,
