@@ -234,9 +234,8 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
           </div>
           <div>
             <label htmlFor="numQuestions" className="block mb-1 text-sm text-white/80">Cantidad</label>
-            <div className="flex items-stretch gap-2">
-              <Button type="button" variant="secondary" className="px-3" onClick={() => setQuestionCount((c) => { const base = typeof c === 'number' ? c : 1; const next = Math.max(1, base - 1); setQuestionCountInput(String(next)); return next; })} aria-label="Disminuir">−</Button>
-              <Input
+              <div>
+                <Input
                 id="numQuestions"
                 type="text"
                 inputMode="numeric"
@@ -261,10 +260,9 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
                 }}
                 required
                 placeholder="Cantidad"
-                className="w-24 text-center"
+                className="w-28 text-center"
               />
-              <Button type="button" variant="secondary" className="px-3" onClick={() => setQuestionCount((c) => { const base = typeof c === 'number' ? c : 0; const next = base + 1; setQuestionCountInput(String(next)); return next; })} aria-label="Aumentar">+</Button>
-            </div>
+              </div>
           </div>
           {error && <Alert intent="error" className="sm:col-span-3">{error}</Alert>}
           <div className="sm:col-span-3 mt-2 flex flex-wrap gap-3 justify-end items-center">
@@ -294,8 +292,7 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
               </div>
               <div>
                 <label className="block mb-1 text-sm text-white/80">¿Cuántas preguntas?</label>
-                <div className="flex items-stretch gap-2">
-                  <Button type="button" variant="secondary" className="px-3" onClick={() => setManualCount((c) => { const base = typeof c === 'number' ? c : 1; const next = Math.max(1, base - 1); setManualCountInput(String(next)); return next; })} aria-label="Disminuir">−</Button>
+                <div>
                   <Input
                     type="text"
                     inputMode="numeric"
@@ -320,9 +317,8 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
                     }}
                     required
                     placeholder="Cantidad"
-                    className="w-24 text-center"
+                    className="w-28 text-center"
                   />
-                  <Button type="button" variant="secondary" className="px-3" onClick={() => setManualCount((c) => { const base = typeof c === 'number' ? c : 0; const next = base + 1; setManualCountInput(String(next)); return next; })} aria-label="Aumentar">+</Button>
                 </div>
               </div>
               <div className="flex justify-end gap-3">
