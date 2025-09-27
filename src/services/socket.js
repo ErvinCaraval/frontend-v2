@@ -13,7 +13,7 @@ export async function getSocket() {
     autoConnect: false,
     // Configuración para mejorar conectividad en móviles
     transports: isMobile ? ['polling', 'websocket'] : ['websocket', 'polling'],
-    timeout: isMobile ? 10000 : 5000, // Timeout más largo para móviles
+    timeout: isMobile ? 10000 : (import.meta.env.VITE_SOCKET_TIMEOUT || 8000),
     forceNew: true, // Forzar nueva conexión
     reconnection: true,
     reconnectionAttempts: isMobile ? 5 : 3,
