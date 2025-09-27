@@ -9,6 +9,7 @@ import Alert from './ui/Alert';
 import Section from './ui/Section';
 import Modal from './ui/Modal';
 import Spinner from './ui/Spinner';
+import LoadingOverlay from './ui/LoadingOverlay';
 
 const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
   const { user } = useAuth();
@@ -165,6 +166,7 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
 
   return (
     <Modal open={true} title="🤖 Generador de Preguntas" onClose={onClose}>
+      {loading && <LoadingOverlay text="Generando…" mobileOnly />}
       {!showManualForm && !useAI && (
         <div className="flex flex-col sm:flex-row gap-3">
           <Button onClick={() => setUseAI(true)} size="lg">

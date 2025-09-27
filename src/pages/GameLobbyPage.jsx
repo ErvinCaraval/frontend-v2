@@ -6,6 +6,7 @@ import { getSocket, disconnectSocket } from '../services/socket';
 import Button from '../components/ui/Button';
 import Alert from '../components/ui/Alert';
 import { Card, CardBody, CardHeader } from '../components/ui/Card';
+import LoadingOverlay from '../components/ui/LoadingOverlay';
 import Skeleton, { SkeletonText } from '../components/ui/Skeleton';
 
 export default function GameLobbyPage() {
@@ -91,6 +92,7 @@ export default function GameLobbyPage() {
 
   return (
     <div className="min-h-screen container px-4 py-8">
+      {!connected && <LoadingOverlay text="Conectando a la sala…" mobileOnly />}
       <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold">🎮 Sala de Juego</h1>

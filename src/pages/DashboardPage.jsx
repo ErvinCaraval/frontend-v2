@@ -10,6 +10,7 @@ import Section from '../components/ui/Section';
 import { Card, CardBody, CardHeader } from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import Skeleton, { SkeletonText } from '../components/ui/Skeleton';
+import LoadingOverlay from '../components/ui/LoadingOverlay';
 const AIQuestionGenerator = React.lazy(() => import('../components/AIQuestionGenerator'));
 
 export default function DashboardPage() {
@@ -149,6 +150,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen">
+      {loading && <LoadingOverlay text="Creando partida…" mobileOnly />}
       {(successMessage || errorMessage) && (
         <div aria-live="polite" className="fixed top-6 inset-x-0 z-[2000] px-4 flex justify-center">
           <Alert intent={errorMessage ? 'error' : 'success'} className="shadow-xl">
