@@ -2,8 +2,12 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '../AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { getSocket } from '../services/socket';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import Alert from '../components/ui/Alert';
+import Section from '../components/ui/Section';
+import { Card, CardBody, CardHeader } from '../components/ui/Card';
 const AIQuestionGenerator = React.lazy(() => import('../components/AIQuestionGenerator'));
-import './DashboardPage.css';
 
 export default function DashboardPage() {
   const { user, logout } = useAuth();
@@ -102,133 +106,121 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="dashboard-page">
+    <div className="min-h-screen">
       {(successMessage || errorMessage) && (
-        <div style={{
-          position: 'fixed',
-          top: 24,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 2000,
-          background: errorMessage ? 'rgba(239,68,68,0.97)' : 'rgba(99,102,241,0.95)',
-          color: '#fff',
-          padding: '1.1rem 2.2rem',
-          borderRadius: 18,
-          fontWeight: 700,
-          fontSize: '1.15rem',
-          boxShadow: '0 4px 24px rgba(42,122,228,0.18)',
-          border: '2px solid #fff',
-          letterSpacing: 0.5,
-          textAlign: 'center',
-          animation: 'fadeIn 0.5s',
-        }}>
-          {errorMessage || successMessage}
+        <div aria-live="polite" className="fixed top-6 inset-x-0 z-[2000] px-4 flex justify-center">
+          <Alert intent={errorMessage ? 'error' : 'success'} className="shadow-xl">
+            {errorMessage || successMessage}
+          </Alert>
         </div>
       )}
-      <header className="dashboard-header">
-        <div className="user-info">
-          <h2>¡Bienvenido, {user?.displayName || user?.email}!</h2>
-          <div className="user-actions">
-            <button onClick={() => navigate('/profile')} className="btn btn-secondary">
+
+      <header className="sticky top-0 z-40 w-full border-b border-white/10 bg-white/5 backdrop-blur-md">
+        <div className="container flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-4 py-5">
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+            ¡Bienvenido, {user?.displayName || user?.email}!
+          </h2>
+          <div className="flex flex-wrap gap-3">
+            <Button variant="secondary" onClick={() => navigate('/profile')} aria-label="Ir a tu perfil">
               Perfil
-            </button>
-            <button onClick={logout} className="btn-outline btn">
+            </Button>
+            <Button variant="outline" onClick={logout} aria-label="Cerrar sesión">
               Cerrar sesión
-            </button>
+            </Button>
           </div>
-          <style>{`
-            .btn, .btn-primary, .btn-secondary, .btn-outline, .btn-ai {
-              min-width: 140px !important;
-              font-size: 1.08rem !important;
-              white-space: nowrap !important;
-            }
-          `}</style>
         </div>
       </header>
 
-      <main className="dashboard-main">
-        <div className="game-actions">
-          <div className="create-game-section">
-            <h3>🎮 Crear nueva partida</h3>
-            <p>Inicia una partida y invita a tus amigos</p>
-            <div className="create-game-actions">
-              <button
+      <main className="container px-4 py-8 md:py-10">
+        <div className="grid gap-6 md:gap-8 grid-cols-1 md:grid-cols-2">
+          <Section
+            title="🎮 Crear nueva partida"
+            subtitle="Inicia una partida y invita a tus amigos"
+          >
+            <div className="flex flex-col gap-4">
+              <Button
                 onClick={handleCreateGame}
-                className="btn btn-primary btn-large"
                 disabled={loading}
                 title="Primero genera preguntas con IA para que tu partida tenga contenido."
+                size="lg"
               >
-                {loading ? 'Creando...' : 'Crear partida'}
-              </button>
-              <button 
-                onClick={() => setShowAIGenerator(true)} 
-                className="btn btn-ai btn-large"
+                {loading ? 'Creando…' : 'Crear partida'}
+              </Button>
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={() => setShowAIGenerator(true)}
                 title="Genera preguntas personalizadas antes de crear tu partida."
               >
                 🤖 Generar preguntas
-              </button>
-              <div className="help-text">
-                <strong>💡 Ayuda:</strong> Antes de crear una partida, puedes generar preguntas automáticamente o agregar preguntas manuales personalizadas. Así tu juego tendrá contenido único, reciente y adaptado a tus necesidades.
+              </Button>
+              <div className="rounded-xl border border-indigo-400/20 bg-indigo-500/10 px-4 py-3 text-sm text-white/85">
+                <strong className="text-indigo-300">💡 Ayuda:</strong> Antes de crear una partida, puedes generar preguntas automáticamente o agregar preguntas manuales personalizadas. Así tu juego tendrá contenido único, reciente y adaptado a tus necesidades.
               </div>
             </div>
-          </div>
+          </Section>
 
-          <div className="join-game-section">
-            <h3>🔗 Unirse a partida</h3>
-            <p>Ingresa un código de 6 dígitos para unirte</p>
-            <div className="join-form">
-              <input
+          <Section title="🔗 Unirse a partida" subtitle="Ingresa un código de 6 caracteres para unirte">
+            <form
+              className="flex flex-col sm:flex-row items-stretch gap-3"
+              onSubmit={(e) => { e.preventDefault(); handleJoinGame(); }}
+              aria-labelledby="join-section-title"
+            >
+              <label htmlFor="gameCode" className="sr-only">Código de partida</label>
+              <Input
+                id="gameCode"
                 type="text"
-                placeholder="Ingresa el código de la partida"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                placeholder="Código (6)"
                 value={gameCode}
                 onChange={(e) => setGameCode(e.target.value)}
-                maxLength="6"
-                className="game-code-input"
+                maxLength={6}
+                className="text-center tracking-widest font-semibold"
               />
-              <button onClick={handleJoinGame} className="btn btn-secondary">
+              <Button type="submit" variant="secondary">
                 Unirse
-              </button>
-            </div>
-          </div>
+              </Button>
+            </form>
+          </Section>
         </div>
 
-        <div className="public-games-section">
-          <h3>🌐 Partidas públicas</h3>
-          <p>Únete a partidas abiertas para todos</p>
-          <div className="games-list">
-            {!Array.isArray(publicGames) || publicGames.length === 0 ? (
-              <p className="no-games">No hay partidas públicas disponibles por ahora</p>
-            ) : (
-              publicGames.map(game => (
-                <div key={game.id} className="game-card">
-                  <div className="game-info">
-                    <h4>Partida #{game.id}</h4>
-                    <p>Jugadores: {game.players?.length || 0}</p>
-                    <p>Anfitrión: {game.players?.[0]?.displayName || 'Desconocido'}</p>
-                  </div>
-                  <button 
-                    onClick={() => handleJoinPublicGame(game.id)}
-                    className="btn btn-primary"
-                  >
-                    Unirse
-                  </button>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+        <Section title="🌐 Partidas públicas" subtitle="Únete a partidas abiertas para todos" className="mt-8">
+          {!Array.isArray(publicGames) || publicGames.length === 0 ? (
+            <p className="text-center text-white/60 italic py-6">No hay partidas públicas disponibles por ahora</p>
+          ) : (
+            <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {publicGames.map((game) => (
+                <Card key={game.id} className="group">
+                  <CardHeader className="pb-3">
+                    <h4 className="text-xl font-semibold">Partida #{game.id}</h4>
+                  </CardHeader>
+                  <CardBody className="flex items-center justify-between gap-4">
+                    <div className="text-sm text-white/80">
+                      <p>Jugadores: {game.players?.length || 0}</p>
+                      <p>Anfitrión: {game.players?.[0]?.displayName || 'Desconocido'}</p>
+                    </div>
+                    <Button onClick={() => handleJoinPublicGame(game.id)} aria-label={`Unirse a la partida ${game.id}`}>
+                      Unirse
+                    </Button>
+                  </CardBody>
+                </Card>
+              ))}
+            </div>
+          )}
+        </Section>
       </main>
 
       {showAIGenerator && (
-          <Suspense fallback={<div>Cargando generador de preguntas...</div>}>
-        <AIQuestionGenerator
-          onQuestionsGenerated={qs => {
-            handleQuestionsGenerated(qs);
-            setShowAIGenerator(false);
-          }}
-          onClose={() => setShowAIGenerator(false)}
-        />
-          </Suspense>
+        <Suspense fallback={<div className="container px-4 py-6"><div className="loading-spinner" aria-live="polite" aria-busy="true">Cargando…</div></div>}>
+          <AIQuestionGenerator
+            onQuestionsGenerated={(qs) => {
+              handleQuestionsGenerated(qs);
+              setShowAIGenerator(false);
+            }}
+            onClose={() => setShowAIGenerator(false)}
+          />
+        </Suspense>
       )}
     </div>
   );
