@@ -147,7 +147,7 @@ export default function GamePage() {
 
   return (
     <div className="container min-h-screen px-4 py-4 md:py-6 grid gap-4 md:gap-6 lg:grid-cols-[2fr_1fr]">
-      <header className="flex items-start md:items-end justify-between gap-3 md:gap-4">
+      <header className="flex items-start md:items-end justify-between gap-3 md:gap-4 lg:col-span-2">
         <div className="min-w-0">
           <h2 className="text-xl md:text-2xl font-bold">🎯 Juego de Preguntas</h2>
           <div className="mt-2 flex items-center gap-3 md:gap-4">
@@ -214,7 +214,7 @@ export default function GamePage() {
 
       <aside>
         <Card>
-          <CardHeader className="pb-2"><h3 className="text-2xl font-semibold">Ranking</h3></CardHeader>
+          <CardHeader className="pb-2"><h3 className="text-xl md:text-2xl font-semibold">Ranking</h3></CardHeader>
           <CardBody>
             <Ranking players={players} />
           </CardBody>
