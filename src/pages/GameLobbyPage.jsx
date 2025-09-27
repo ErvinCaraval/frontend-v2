@@ -27,16 +27,26 @@ export default function GameLobbyPage() {
       if (!user) return;
       const socket = await getSocket();
       
-      // Timeout para evitar que se quede colgado en "Conectando a la sala..."
+      // Timeout adaptativo para evitar que se quede colgado en "Conectando a la sala..."
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const timeoutDuration = isMobile ? 10000 : 15000; // 10s para móviles, 15s para desktop
+      
       const connectionTimeoutId = setTimeout(() => {
         if (!socket.connected) {
           setConnectionTimeout(true);
           console.warn('[GameLobbyPage] Timeout de conexión alcanzado');
         }
-      }, 15000); // 15 segundos de timeout
+      }, timeoutDuration);
       
+      // Forzar reconexión si no está conectado
       if (!socket.connected) {
+        console.log('[GameLobbyPage] Socket no conectado, reconectando...');
+        socket.disconnect();
         socket.connect();
+      } else {
+        console.log('[GameLobbyPage] Socket ya conectado:', socket.id);
+        setConnected(true);
+        clearTimeout(connectionTimeoutId);
       }
       
       // UI optimista
@@ -114,8 +124,17 @@ export default function GameLobbyPage() {
     
     try {
       const socket = await getSocket();
+      console.log('[GameLobbyPage] Reintentando conexión...');
+      
+      // Desconectar completamente y reconectar
       socket.disconnect();
-      socket.connect();
+      socket.removeAllListeners();
+      
+      // Esperar un momento antes de reconectar
+      setTimeout(() => {
+        socket.connect();
+      }, 1000);
+      
     } catch (error) {
       console.error('[GameLobbyPage] Error al reintentar conexión:', error);
       setConnectionTimeout(true);
@@ -135,7 +154,12 @@ export default function GameLobbyPage() {
 
   return (
     <div className="min-h-screen container px-4 py-8">
-      {!connected && !connectionTimeout && <LoadingOverlay text="Conectando a la sala…" mobileOnly />}
+      {!connected && !connectionTimeout && (
+        <LoadingOverlay 
+          text="Conectando a la sala…" 
+          mobileOnly 
+        />
+      )}
       {connectionTimeout && (
         <div className="fixed inset-0 z-[3500] flex items-center justify-center px-6 md:hidden">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />

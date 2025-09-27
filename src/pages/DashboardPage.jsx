@@ -123,7 +123,17 @@ export default function DashboardPage() {
         setLoading(false);
         setSuccessMessage(`¡Tu partida fue creada con ${questions?.length || 0} preguntas! Invita a tus amigos y disfruta. 🚀`);
         setTimeout(() => setSuccessMessage(''), 5000);
-        setTimeout(() => navigate(`/lobby/${gameId}`), 800);
+        
+        // Asegurar que el socket esté conectado antes de navegar
+        if (socket.connected) {
+          setTimeout(() => navigate(`/lobby/${gameId}`), 800);
+        } else {
+          // Si no está conectado, reconectar y luego navegar
+          socket.connect();
+          socket.once('connect', () => {
+            setTimeout(() => navigate(`/lobby/${gameId}`), 500);
+          });
+        }
       });
       socket.once('error', ({ error }) => {
         clearTimeout(timeoutId);
