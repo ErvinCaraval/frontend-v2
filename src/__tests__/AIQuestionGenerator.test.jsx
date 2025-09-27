@@ -3,6 +3,23 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import React from 'react'
 import AIQuestionGenerator from '../components/AIQuestionGenerator'
 
+// Mock del hook useAuth
+vi.mock('../AuthContext', () => ({
+  useAuth: () => ({
+    user: {
+      uid: 'test-user-id',
+      email: 'test@example.com',
+      displayName: 'Test User'
+    }
+  })
+}))
+
+// Mock de las funciones de API
+vi.mock('../services/api', () => ({
+  fetchTopics: vi.fn(() => Promise.resolve(['Matemáticas', 'Historia', 'Ciencia'])),
+  fetchDifficultyLevels: vi.fn(() => Promise.resolve(['Fácil', 'Medio', 'Difícil']))
+}))
+
 describe('AIQuestionGenerator (mobile-friendly cantidad)', () => {
   it('starts with empty cantidad and accepts only numbers', () => {
     const onGenerated = vi.fn()

@@ -12,7 +12,7 @@ describe('LoginPage', () => {
       </MemoryRouter>
     )
   const email = screen.getByPlaceholderText(/correo|email|correo electrónico/i)
-  const password = screen.getByPlaceholderText(/contraseña|password/i)
+  const password = screen.getByPlaceholderText(/••••••••/)
   const submit = screen.getByRole('button', { name: /iniciar sesión|iniciar sesión|login|submit/i })
 
     expect(email).toBeInTheDocument()
