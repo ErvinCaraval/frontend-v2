@@ -3,8 +3,11 @@ import { useAuth } from '../AuthContext';
 import { useNavigate } from 'react-router-dom';
 import ManualQuestionForm from './ManualQuestionForm';
 import { fetchTopics, fetchDifficultyLevels, fetchWithRetry } from '../services/api';
-import './AIQuestionGenerator.css';
-import './common.css';
+import Button from './ui/Button';
+import Input from './ui/Input';
+import Alert from './ui/Alert';
+import Section from './ui/Section';
+import Modal from './ui/Modal';
 
 const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
   const { user } = useAuth();
@@ -159,42 +162,25 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
   }, [loading, error, generatedQuestions]);
 
   return (
-    <div className="ai-generator-overlay">
-      <div className="ai-generator-modal">
-        <div className="ai-generator-header">
-          <h2>🤖 Generador de Preguntas</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
+    <Modal open={true} title="🤖 Generador de Preguntas" onClose={onClose}>
+      {!showManualForm && !useAI && (
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button onClick={() => setUseAI(true)} size="lg">
+            Crear con IA
+          </Button>
+          <Button
+            variant="secondary"
+            size="lg"
+            onClick={() => { setShowManualForm(true); setUseAI(false); setManualStep(0); setManualQuestions([]); }}
+          >
+            Escribir preguntas
+          </Button>
         </div>
-        {/* Selección de método de generación */}
-        {!showManualForm && !useAI && (
-          <div className="ai-generator-method-select">
-            <button 
-              type="button"
-              className="btn btn-primary" 
-              onClick={() => setUseAI(true)} 
-              style={{ marginRight: 12, minWidth: 140, fontSize: '1.08rem', whiteSpace: 'nowrap' }}
-            >
-              Crear con IA
-            </button>
-            <button 
-              type="button"
-              className="btn btn-secondary" 
-              onClick={() => {
-                setShowManualForm(true);
-                setUseAI(false);
-                setManualStep(0);
-                setManualQuestions([]);
-                // Activando modo manual sin necesidad de log
-              }} 
-              style={{ minWidth: 140, fontSize: '1.08rem', whiteSpace: 'nowrap' }}
-            >
-              Escribir preguntas
-            </button>
-          </div>
-        )}
-        {/* Formulario de generación con IA */}
-        {useAI && !showManualForm && (
-          <form className="ai-generator-form" onSubmit={async (e) => {
+      )}
+      {useAI && !showManualForm && (
+        <form
+          className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4"
+          onSubmit={async (e) => {
             e.preventDefault();
             setLoading(true);
             setError('');
@@ -206,127 +192,98 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
             } finally {
               setLoading(false);
             }
-          }}>
-            <div className="form-group">
-              <label htmlFor="topic">Tema</label>
-              <select
-                id="topic"
-                className="form-select"
-                value={selectedTopic}
-                onChange={(e) => setSelectedTopic(e.target.value)}
-                disabled={topics.length === 0}
-              >
-                {topics.length === 0 ? (
-                  <option value="">No hay temas disponibles</option>
-                ) : (
-                  topics.map(topic => (
-                    <option key={topic} value={topic}>{topic}</option>
-                  ))
-                )}
-              </select>
-            </div>
-            <div className="form-group">
-              <label htmlFor="difficulty">Dificultad</label>
-              <select
-                id="difficulty"
-                className="form-select"
-                value={selectedDifficulty}
-                onChange={(e) => setSelectedDifficulty(e.target.value)}
-              >
-                <option value="easy">Fácil</option>
-                <option value="medium">Media</option>
-                <option value="hard">Difícil</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label htmlFor="numQuestions">Cantidad de Preguntas</label>
-              <input
-                type="number"
-                id="numQuestions"
-                className="form-input"
-                value={questionCount}
-                onChange={(e) => setQuestionCount(Math.min(Math.max(1, parseInt(e.target.value) || 1), 20))}
-                min="1"
-                max="20"
-                required
-              />
-            </div>
-            {error && <div className="error-message">{error}</div>}
-            <div className="ai-generator-actions">
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={loading}
-                style={{ minWidth: 140, fontSize: '1.08rem', whiteSpace: 'nowrap' }}
-              >
-                {loading ? (
-                  <>
-                    <div className="loading-indicator"></div>
-                    <span>Creando...</span>
-                  </>
-                ) : 'Crear preguntas'}
-              </button>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => setUseAI(false)}
-                disabled={loading}
-                style={{ marginLeft: 8, minWidth: 100, fontSize: '1.08rem', whiteSpace: 'nowrap' }}
-              >
-                Atrás
-              </button>
-            </div>
-          </form>
-        )}
-        {/* Formulario manual */}
-        {showManualForm && (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 380, padding: '32px 0 12px 0' }}>
-            {manualStep === 0 ? (
-              <form
-                className="manual-question-form"
-                style={{ maxWidth: 420, margin: '0 auto', marginBottom: 24, boxShadow: '0 8px 32px rgba(42,122,228,0.13)', background: 'rgba(26,26,46,0.97)', borderRadius: 24, padding: '36px 32px 28px 32px', border: '2.5px solid var(--bb-primary)', backdropFilter: 'blur(14px) saturate(1.2)' }}
-                onSubmit={e => { e.preventDefault(); setManualStep(1); setManualQuestions([]); setManualTopic(selectedTopic); }}
-              >
-                <h3 style={{ textAlign: 'center', marginBottom: 24, fontWeight: 900, fontSize: '1.35rem', letterSpacing: 1.2, color: 'var(--bb-primary)', background: 'var(--bb-gradient-primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                  ¿Cuántas preguntas quieres agregar manualmente?
-                </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
-                  <label style={{ fontSize: '1.08rem', fontWeight: 600 }}>
-                    Tema:
-                    <select
-                      value={selectedTopic}
-                      onChange={e => setSelectedTopic(e.target.value)}
-                      style={{ marginLeft: 8, minWidth: 120, padding: '10px 16px', borderRadius: 10, fontSize: '1.08rem', border: '2px solid var(--bb-primary-light)', background: 'rgba(22,33,62,0.7)', color: 'var(--bb-text-primary)' }}
-                    >
-                      {topics.map(t => <option key={t} value={t}>{t}</option>)}
-                    </select>
-                  </label>
-                  <label style={{ fontSize: '1.08rem', fontWeight: 600 }}>
-                    ¿Cuántas preguntas?
-                    <input
-                      type="number"
-                      value={manualCount}
-                      onChange={e => setManualCount(Math.min(Math.max(1, parseInt(e.target.value) || 1), 20))}
-                      style={{ marginLeft: 8, width: 80, padding: '10px 16px', borderRadius: 10, fontSize: '1.08rem', border: '2px solid var(--bb-primary-light)', background: 'rgba(22,33,62,0.7)', color: 'var(--bb-text-primary)' }}
-                      min="1"
-                      max="20"
-                      required
-                    />
-                  </label>
-                  <div style={{ display: 'flex', justifyContent: 'center', gap: 18, marginTop: 10 }}>
-                    <button type="submit" className="btn btn-primary" style={{ minWidth: 120, fontSize: '1.08rem' }}>Empezar</button>
-                    <button type="button" className="btn btn-secondary" style={{ minWidth: 120, fontSize: '1.08rem' }} onClick={() => setShowManualForm(false)}>Volver</button>
-                  </div>
-                </div>
-              </form>
+          }}
+        >
+          <div>
+            <label htmlFor="topic" className="block mb-1 text-sm text-white/80">Tema</label>
+            <select
+              id="topic"
+              className="block w-full rounded-xl border-2 border-white/10 bg-white/5 px-4 py-3 text-white backdrop-blur-md focus:border-bb-primary focus:ring-2 focus:ring-bb-primary/30 focus:outline-none"
+              value={selectedTopic}
+              onChange={(e) => setSelectedTopic(e.target.value)}
+              disabled={topics.length === 0}
+            >
+              {topics.length === 0 ? (
+                <option value="">No hay temas</option>
               ) : (
-              <div style={{ width: '100%', maxWidth: 650, margin: '0 auto', background: 'rgba(26,26,46,0.97)', borderRadius: 28, boxShadow: '0 8px 32px rgba(42,122,228,0.13)', border: '2.5px solid var(--bb-primary)', padding: '36px 32px 28px 32px', backdropFilter: 'blur(14px) saturate(1.2)' }}>
-                <div style={{ textAlign: 'center', marginBottom: 18, fontWeight: 900, fontSize: '1.25rem', letterSpacing: 1.1, color: 'var(--bb-primary)', background: 'var(--bb-gradient-primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                  ¡Vamos! Pregunta {manualQuestions.length + 1} de {manualCount}
-                </div>
-                                <ManualQuestionForm
-                                  topics={[manualTopic]}
-                                  onQuestionCreated={async (q) => {
+                topics.map(topic => (
+                  <option key={topic} value={topic}>{topic}</option>
+                ))
+              )}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="difficulty" className="block mb-1 text-sm text-white/80">Dificultad</label>
+            <select
+              id="difficulty"
+              className="block w-full rounded-xl border-2 border-white/10 bg-white/5 px-4 py-3 text-white backdrop-blur-md focus:border-bb-primary focus:ring-2 focus:ring-bb-primary/30 focus:outline-none"
+              value={selectedDifficulty}
+              onChange={(e) => setSelectedDifficulty(e.target.value)}
+            >
+              <option value="easy">Fácil</option>
+              <option value="medium">Media</option>
+              <option value="hard">Difícil</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="numQuestions" className="block mb-1 text-sm text-white/80">Cantidad</label>
+            <Input
+              id="numQuestions"
+              type="number"
+              value={questionCount}
+              onChange={(e) => setQuestionCount(Math.min(Math.max(1, parseInt(e.target.value) || 1), 20))}
+              min={1}
+              max={20}
+              required
+            />
+          </div>
+          {error && <Alert intent="error" className="sm:col-span-3">{error}</Alert>}
+          <div className="sm:col-span-3 mt-2 flex flex-wrap gap-3 justify-end">
+            <Button type="button" variant="secondary" onClick={() => setUseAI(false)} disabled={loading}>Atrás</Button>
+            <Button type="submit" disabled={loading}>{loading ? 'Creando…' : 'Crear preguntas'}</Button>
+          </div>
+        </form>
+      )}
+      {showManualForm && (
+        <div className="mt-2">
+          {manualStep === 0 ? (
+            <form
+              className="grid grid-cols-1 gap-4"
+              onSubmit={e => { e.preventDefault(); setManualStep(1); setManualQuestions([]); setManualTopic(selectedTopic); }}
+            >
+              <div>
+                <label className="block mb-1 text-sm text-white/80">Tema</label>
+                <select
+                  value={selectedTopic}
+                  onChange={e => setSelectedTopic(e.target.value)}
+                  className="block w-full rounded-xl border-2 border-white/10 bg-white/5 px-4 py-3 text-white backdrop-blur-md focus:border-bb-primary focus:ring-2 focus:ring-bb-primary/30 focus:outline-none"
+                >
+                  {topics.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block mb-1 text-sm text-white/80">¿Cuántas preguntas?</label>
+                <Input
+                  type="number"
+                  value={manualCount}
+                  onChange={e => setManualCount(Math.min(Math.max(1, parseInt(e.target.value) || 1), 20))}
+                  min={1}
+                  max={20}
+                  required
+                  className="w-32"
+                />
+              </div>
+              <div className="flex justify-end gap-3">
+                <Button type="button" variant="secondary" onClick={() => setShowManualForm(false)}>Volver</Button>
+                <Button type="submit">Empezar</Button>
+              </div>
+            </form>
+          ) : (
+            <div>
+              <div className="text-center mb-3 font-bold">¡Vamos! Pregunta {manualQuestions.length + 1} de {manualCount}</div>
+              <ManualQuestionForm
+                topics={[manualTopic]}
+                onQuestionCreated={async (q) => {
                                     // q is the payload prepared by the child
                                     try {
                                       setLoading(true);
@@ -398,16 +355,13 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
                                       setLoading(false);
                                     }
                                   }}
-                                  onCancel={() => {
-                                    setShowManualForm(false);
-                                  }}
+                                  onCancel={() => { setShowManualForm(false); }}
                                 />
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
+            </div>
+          )}
+        </div>
+      )}
+    </Modal>
   );
 }
 

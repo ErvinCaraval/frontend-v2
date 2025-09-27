@@ -5,7 +5,8 @@ import { getSocket } from '../services/socket';
 import Question from '../components/Question';
 import Timer from '../components/Timer';
 import Ranking from '../components/Ranking';
-import './GamePage.css';
+import { Card, CardBody, CardHeader } from '../components/ui/Card';
+import Alert from '../components/ui/Alert';
 
 export default function GamePage() {
   const [questionTimeout, setQuestionTimeout] = useState(false);
@@ -145,81 +146,76 @@ export default function GamePage() {
   };
 
   return (
-    <div className="game-page">
-      <header className="game-header">
-        <div className="game-info">
-          <h2>🎯 Juego de Preguntas</h2>
-          <div className="progress-info">
-            <span className="question-counter">
-              Pregunta {questionIndex + 1} de {totalQuestions || '?'}
-            </span>
-            <div className="progress-bar">
-              <div 
-                className="progress-fill" 
-                style={{ width: `${((questionIndex + 1) / (totalQuestions || 1)) * 100}%` }}
-              ></div>
+    <div className="container min-h-screen px-4 py-6 grid gap-6 lg:grid-cols-[2fr_1fr]">
+      <header className="flex items-end justify-between gap-4">
+        <div>
+          <h2 className="text-2xl md:text-3xl font-bold">🎯 Juego de Preguntas</h2>
+          <div className="mt-2 flex items-center gap-4">
+            <span className="text-sm text-white/80">Pregunta {questionIndex + 1} de {totalQuestions || '?'}</span>
+            <div className="h-2 w-48 rounded-full bg-white/10">
+              <div className="h-2 rounded-full bg-gradient-to-r from-bb-primary to-bb-accent" style={{ width: `${((questionIndex + 1) / (totalQuestions || 1)) * 100}%` }} />
             </div>
           </div>
         </div>
-        <div className="player-rank">
-          <span className="rank-number">#{getPlayerRank()}</span>
-          <span className="rank-label">Tu posición</span>
+        <div className="text-right">
+          <div className="text-xl font-bold">#{getPlayerRank()}</div>
+          <div className="text-xs text-white/70">Tu posición</div>
         </div>
       </header>
 
-      <main className="game-main">
+      <main className="space-y-4">
         {question && (
-          <div className="question-container">
-            <div className="question-header">
-              <Question
-                question={question.question}
-                options={question.options}
-                onSelect={handleSelect}
-                selected={selected}
-              />
-              {!showResult && (
-                <Timer
-                  key={timerKey}
-                  seconds={10}
-                  onEnd={handleTimerEnd}
-                  onTick={setTimeLeft}
+          <Card>
+            <CardBody className="space-y-4">
+              <div className="flex items-start justify-between gap-4">
+                <Question
+                  question={question.question}
+                  options={question.options}
+                  onSelect={handleSelect}
+                  selected={selected}
                 />
-              )}
-            </div>
-            {showResult && result && (
-              <div className="result-container">
-                <div className="result-header">
-                  <h4>✅ ¡Respuesta revelada!</h4>
-                </div>
-                <div className="correct-answer">
-                  <strong>Respuesta correcta:</strong> {question.options[result.correctAnswerIndex]}
-                </div>
-                {result.explanation && (
-                  <div className="explanation">
-                    <strong>Explicación:</strong> {result.explanation}
+                {!showResult && (
+                  <div className="shrink-0">
+                    <Timer
+                      key={timerKey}
+                      seconds={10}
+                      onEnd={handleTimerEnd}
+                      onTick={setTimeLeft}
+                    />
                   </div>
                 )}
               </div>
-            )}
-          </div>
+              {showResult && result && (
+                <Alert intent="info">
+                  <div className="font-semibold mb-1">✅ ¡Respuesta revelada!</div>
+                  <div><strong>Correcta:</strong> {question.options[result.correctAnswerIndex]}</div>
+                  {result.explanation && (
+                    <div className="mt-2 text-white/90"><strong>Explicación:</strong> {result.explanation}</div>
+                  )}
+                </Alert>
+              )}
+            </CardBody>
+          </Card>
         )}
 
         {!question && !questionTimeout && (
-          <div className="waiting-container">
-            <div className="loading-spinner"></div>
+          <div className="flex items-center gap-3 text-white/80">
+            <div className="loading-spinner" />
             <p>Esperando la siguiente pregunta...</p>
           </div>
         )}
         {!question && questionTimeout && (
-          <div className="waiting-container">
-            <div className="loading-spinner"></div>
-            <p style={{color: 'red', fontWeight: 'bold'}}>No se encontraron preguntas para este tema. Verifica que hayas generado preguntas y que el tema coincida exactamente.</p>
-          </div>
+          <Alert intent="error">No se encontraron preguntas para este tema. Verifica que hayas generado preguntas y que el tema coincida exactamente.</Alert>
         )}
       </main>
 
-      <aside className="game-sidebar">
-        <Ranking players={players} />
+      <aside>
+        <Card>
+          <CardHeader className="pb-2"><h3 className="text-2xl font-semibold">Ranking</h3></CardHeader>
+          <CardBody>
+            <Ranking players={players} />
+          </CardBody>
+        </Card>
       </aside>
     </div>
   );

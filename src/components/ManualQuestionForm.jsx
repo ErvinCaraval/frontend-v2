@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../AuthContext';
-import './ManualQuestionForm.css';
-import './common.css';
+import Button from './ui/Button';
+import Input from './ui/Input';
+import Alert from './ui/Alert';
 
 const ManualQuestionForm = ({ topics, onQuestionCreated, onCancel }) => {
   const { user } = useAuth();
@@ -76,58 +77,59 @@ const ManualQuestionForm = ({ topics, onQuestionCreated, onCancel }) => {
   };
 
   return (
-    <form className="manual-question-form" onSubmit={handleSubmit}>
-      <h3>Escribe tu pregunta</h3>
-      
-      {error && <div className="error-message">{error}</div>}
-      {successMessage && <div className="success-message">{successMessage}</div>}
-      
-      <div className={`form-group ${loading ? 'disabled' : ''}`}>
-        <label>
-          Tema:
-          <select 
-            value={formData.selectedTopic} 
-            onChange={e => setFormData(prev => ({ ...prev, selectedTopic: e.target.value }))}
-            disabled={loading}
-          >
-            {topics.map(t => <option key={t} value={t}>{t}</option>)}
-          </select>
-        </label>
+    <form className="grid gap-4" onSubmit={handleSubmit}>
+      <h3 className="text-xl font-bold">Escribe tu pregunta</h3>
+
+      {error && <Alert intent="error">{error}</Alert>}
+      {successMessage && <Alert intent="success">{successMessage}</Alert>}
+
+      <div className="grid gap-2">
+        <label className="text-sm text-white/80" htmlFor="topic-select">Tema</label>
+        <select
+          id="topic-select"
+          value={formData.selectedTopic}
+          onChange={e => setFormData(prev => ({ ...prev, selectedTopic: e.target.value }))}
+          disabled={loading}
+          className="block w-full rounded-xl border-2 border-white/10 bg-white/5 px-4 py-3 text-white backdrop-blur-md focus:border-bb-primary focus:ring-2 focus:ring-bb-primary/30 focus:outline-none"
+        >
+          {topics.map(t => <option key={t} value={t}>{t}</option>)}
+        </select>
       </div>
 
-      <div className={`form-group ${loading ? 'disabled' : ''}`}>
-        <label>
-          Pregunta:
-          <input
-            type="text"
-            value={formData.question}
-            onChange={e => setFormData(prev => ({ ...prev, question: e.target.value }))}
-            disabled={loading}
-            required
-          />
-        </label>
+      <div className="grid gap-2">
+        <label className="text-sm text-white/80" htmlFor="question-input">Pregunta</label>
+        <Input
+          id="question-input"
+          type="text"
+          value={formData.question}
+          onChange={e => setFormData(prev => ({ ...prev, question: e.target.value }))}
+          disabled={loading}
+          required
+        />
       </div>
 
-      <div className={`form-group ${loading ? 'disabled' : ''}`}>
-        <label>Opciones:</label>
-        <div className="manual-options-list">
+      <div className="grid gap-3">
+        <label className="text-sm text-white/80">Opciones</label>
+        <div className="grid gap-3">
           {formData.options.map((opt, idx) => (
-            <div key={idx} className="manual-option-row">
-              <input
+            <div key={idx} className="flex items-center gap-3">
+              <Input
                 type="text"
                 value={opt}
                 onChange={e => handleOptionChange(idx, e.target.value)}
                 disabled={loading}
                 required
                 placeholder={`Opción ${idx + 1}`}
+                className="flex-1"
               />
-              <label className="radio-label">
+              <label className="inline-flex items-center gap-2 text-sm">
                 <input
                   type="radio"
                   name="correctOption"
                   checked={formData.correctIndex === idx}
                   onChange={() => setFormData(prev => ({ ...prev, correctIndex: idx }))}
                   disabled={loading}
+                  className="h-4 w-4"
                 />
                 <span>Correcta</span>
               </label>
@@ -136,27 +138,9 @@ const ManualQuestionForm = ({ topics, onQuestionCreated, onCancel }) => {
         </div>
       </div>
 
-      <div className="manual-question-actions">
-        <button 
-          type="submit" 
-          className="btn btn-primary" 
-          disabled={loading}
-        >
-          {loading ? (
-            <>
-              <div className="loading-indicator" />
-              <span style={{ marginLeft: '8px' }}>Guardando...</span>
-            </>
-          ) : 'Guardar'}
-        </button>
-        <button 
-          type="button" 
-          className="btn btn-secondary" 
-          onClick={onCancel} 
-          disabled={loading}
-        >
-          Atrás
-        </button>
+      <div className="flex justify-end gap-3">
+        <Button type="button" variant="secondary" onClick={onCancel} disabled={loading}>Atrás</Button>
+        <Button type="submit" disabled={loading}>{loading ? 'Guardando…' : 'Guardar'}</Button>
       </div>
     </form>
   );
