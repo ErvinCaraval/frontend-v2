@@ -88,7 +88,7 @@ export default function DashboardPage() {
         setLoading(false);
         setErrorMessage('Tiempo de espera al crear la partida. Verifica tu conexión e inténtalo de nuevo.');
         setTimeout(() => setErrorMessage(''), 5000);
-      }, 10000);
+      }, 8000);
     // Obtener el token de autenticación del usuario
     let token = null;
     if (user && user.getIdToken) {

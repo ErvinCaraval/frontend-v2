@@ -5,7 +5,13 @@ const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_API_U
 export async function getSocket() {
   if (socket) return socket;
   const { io } = await import('socket.io-client');
-  socket = io(SOCKET_URL, { autoConnect: false });
+  socket = io(SOCKET_URL, {
+    autoConnect: false,
+    transports: ['websocket'],
+    reconnection: true,
+    reconnectionAttempts: 3,
+    timeout: 8000,
+  });
   return socket;
 }
 
