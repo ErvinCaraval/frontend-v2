@@ -1,14 +1,23 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 
 export default function Timer({ seconds = 20, onEnd, onTick }) {
   const [time, setTime] = useState(seconds);
   const intervalRef = useRef();
-  const isRunningRef = useRef(false);
+  const onEndRef = useRef(onEnd);
+  const onTickRef = useRef(onTick);
+
+  // Mantener referencias actualizadas
+  useEffect(() => {
+    onEndRef.current = onEnd;
+  }, [onEnd]);
+
+  useEffect(() => {
+    onTickRef.current = onTick;
+  }, [onTick]);
 
   // Resetear el timer cuando cambian los segundos
   useEffect(() => {
     setTime(seconds);
-    isRunningRef.current = true;
     
     // Limpiar interval anterior si existe
     if (intervalRef.current) {
@@ -20,11 +29,13 @@ export default function Timer({ seconds = 20, onEnd, onTick }) {
       intervalRef.current = setInterval(() => {
         setTime(prevTime => {
           const newTime = prevTime - 1;
+          
           if (newTime <= 0) {
-            isRunningRef.current = false;
-            if (onEnd) onEnd();
             if (intervalRef.current) {
               clearInterval(intervalRef.current);
+            }
+            if (onEndRef.current) {
+              onEndRef.current();
             }
           }
           return newTime;
@@ -37,11 +48,14 @@ export default function Timer({ seconds = 20, onEnd, onTick }) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [seconds, onEnd]);
+  }, [seconds]); // Solo depender de seconds
 
+  // Notificar cambios de tiempo
   useEffect(() => {
-    if (onTick) onTick(time);
-  }, [time, onTick]);
+    if (onTickRef.current) {
+      onTickRef.current(time);
+    }
+  }, [time]);
 
   // Cleanup al desmontar el componente
   useEffect(() => {
