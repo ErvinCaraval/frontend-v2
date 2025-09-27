@@ -41,6 +41,25 @@ export default function DashboardPage() {
     }
   };
 
+  const connectSocket = async () => {
+    const socket = await getSocket();
+    if (socket.connected) return socket;
+    await new Promise((resolve, reject) => {
+      const onConnect = () => {
+        socket.off('connect_error', onError);
+        resolve();
+      };
+      const onError = (err) => {
+        socket.off('connect', onConnect);
+        reject(err);
+      };
+      socket.once('connect', onConnect);
+      socket.once('connect_error', onError);
+      socket.connect();
+    });
+    return socket;
+  };
+
   const handleCreateGame = async () => {
     if (!selectedTopic) {
       setErrorMessage('Por favor selecciona un tema antes de crear la partida.');
@@ -48,21 +67,33 @@ export default function DashboardPage() {
       return;
     }
     if (!generatedQuestions.length) {
-      setErrorMessage('Primero debes generar preguntas con IA antes de crear la partida.');
+      setErrorMessage('Primero genera preguntas con IA antes de crear la partida.');
+      setShowAIGenerator(true);
       setTimeout(() => setErrorMessage(''), 4000);
       return;
     }
     // Forzar que todas las preguntas tengan el category igual al tema seleccionado
     const fixedQuestions = generatedQuestions.map(q => ({ ...q, category: selectedTopic }));
     setLoading(true);
-  const socket = await getSocket();
-  socket.connect();
+    let timeoutId;
+    try {
+      const socket = await connectSocket();
+      // Limpiar posibles listeners previos
+      socket.off('gameCreated');
+      socket.off('error');
+      
+      // Temporizador de seguridad
+      timeoutId = setTimeout(() => {
+        setLoading(false);
+        setErrorMessage('Tiempo de espera al crear la partida. Verifica tu conexión e inténtalo de nuevo.');
+        setTimeout(() => setErrorMessage(''), 5000);
+      }, 10000);
     // Obtener el token de autenticación del usuario
     let token = null;
     if (user && user.getIdToken) {
       token = await user.getIdToken();
     }
-  socket.emit('createGame', {
+      socket.emit('createGame', {
       hostId: user.uid,
       displayName: user.displayName || user.email,
       isPublic: true,
@@ -70,18 +101,26 @@ export default function DashboardPage() {
       topic: selectedTopic,
       questions: fixedQuestions,
       count: fixedQuestions.length
-    });
-  socket.on('gameCreated', ({ gameId, questions }) => {
+      });
+      socket.once('gameCreated', ({ gameId, questions }) => {
+        clearTimeout(timeoutId);
+        setLoading(false);
+        setSuccessMessage(`¡Tu partida fue creada con ${questions?.length || 0} preguntas! Invita a tus amigos y disfruta. 🚀`);
+        setTimeout(() => setSuccessMessage(''), 5000);
+        setTimeout(() => navigate(`/lobby/${gameId}`), 800);
+      });
+      socket.once('error', ({ error }) => {
+        clearTimeout(timeoutId);
+        setLoading(false);
+        setErrorMessage('Ocurrió un error al crear la partida: ' + error);
+        setTimeout(() => setErrorMessage(''), 5000);
+      });
+    } catch (err) {
+      clearTimeout(timeoutId);
       setLoading(false);
-      setSuccessMessage(`¡Tu partida fue creada con ${questions?.length || 0} preguntas! Invita a tus amigos y disfruta. 🚀`);
-      setTimeout(() => setSuccessMessage(''), 5000);
-      setTimeout(() => navigate(`/lobby/${gameId}`), 1200);
-    });
-  socket.on('error', ({ error }) => {
-  setLoading(false);
-  setErrorMessage('Ocurrió un error al crear la partida: ' + error);
-  setTimeout(() => setErrorMessage(''), 5000);
-    });
+      setErrorMessage('No se pudo conectar con el servidor. Intenta de nuevo.');
+      setTimeout(() => setErrorMessage(''), 5000);
+    }
   };
 
   const handleJoinGame = () => {
