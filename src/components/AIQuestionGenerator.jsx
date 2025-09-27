@@ -262,6 +262,11 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
                 placeholder="Cantidad"
                 className="w-28 text-center"
               />
+              {(questionCountInput === '' || questionCount === null) && (
+                <div className={`mt-1 text-xs ${questionCountInput === '' ? 'text-white/60' : 'text-red-300'}`}>
+                  {questionCountInput === '' ? 'Ingresa un número (>= 1)' : 'Valor inválido'}
+                </div>
+              )}
               </div>
           </div>
           {error && <Alert intent="error" className="sm:col-span-3">{error}</Alert>}
@@ -319,6 +324,11 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
                     placeholder="Cantidad"
                     className="w-28 text-center"
                   />
+                  {(manualCountInput === '' || manualCount === null) && (
+                    <div className={`mt-1 text-xs ${manualCountInput === '' ? 'text-white/60' : 'text-red-300'}`}>
+                      {manualCountInput === '' ? 'Ingresa un número (>= 1)' : 'Valor inválido'}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="flex justify-end gap-3">
