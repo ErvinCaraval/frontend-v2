@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion'
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import { getSocket, disconnectSocket } from '../services/socket';
@@ -101,15 +102,17 @@ export default function GameLobbyPage() {
           </CardHeader>
           <CardBody>
             <div className="grid gap-3 sm:grid-cols-2">
-              {players.map((player) => (
-                <div key={player.uid} className={`flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 transition-transform duration-150 hover:-translate-y-0.5 ${player.uid === hostId ? 'ring-1 ring-bb-primary/50' : ''}`}>
-                  <div className="text-xl">{player.uid === hostId ? '👑' : '👤'}</div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold truncate">{player.displayName || player.email}</div>
-                    {player.uid === hostId && <div className="text-xs text-white/70">Anfitrión</div>}
-                  </div>
-                </div>
-              ))}
+              <AnimatePresence>
+                {players.map((player) => (
+                  <motion.div key={player.uid} layout initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ type: 'spring', stiffness: 140, damping: 16 }} className={`flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 transition-transform duration-150 hover:-translate-y-0.5 ${player.uid === hostId ? 'ring-1 ring-bb-primary/50' : ''}`}>
+                    <div className="text-xl">{player.uid === hostId ? '👑' : '👤'}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold truncate">{player.displayName || player.email}</div>
+                      {player.uid === hostId && <div className="text-xs text-white/70">Anfitrión</div>}
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
           </CardBody>
         </Card>

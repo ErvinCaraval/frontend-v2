@@ -1,4 +1,5 @@
 import React, { useState, useEffect, Suspense } from 'react';
+import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { getSocket } from '../services/socket';
@@ -190,25 +191,29 @@ export default function DashboardPage() {
           {!Array.isArray(publicGames) || publicGames.length === 0 ? (
             <p className="text-center text-white/60 italic py-6">No hay partidas públicas disponibles por ahora</p>
           ) : (
-            <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {publicGames.map((game, idx) => (
-                <Card key={game.id} className="group transition hover:-translate-y-0.5 hover:shadow-glow">
-                  <CardHeader className="pb-3 flex items-center justify-between">
-                    <h4 className="text-xl font-semibold">Partida #{game.id}</h4>
-                    <Badge variant={idx % 2 ? 'violet' : 'emerald'}>{game.topic || 'Pública'}</Badge>
-                  </CardHeader>
-                  <CardBody className="flex items-center justify-between gap-4">
-                    <div className="text-sm text-white/80">
-                      <p>Jugadores: {game.players?.length || 0}</p>
-                      <p>Anfitrión: {game.players?.[0]?.displayName || 'Desconocido'}</p>
-                    </div>
-                    <Button onClick={() => handleJoinPublicGame(game.id)} aria-label={`Unirse a la partida ${game.id}`}>
-                      Unirse
-                    </Button>
-                  </CardBody>
-                </Card>
-              ))}
-            </div>
+            <motion.div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" initial="hidden" animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06 } } }}>
+              <AnimatePresence>
+                {publicGames.map((game, idx) => (
+                  <motion.div key={game.id} layout initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ type: 'spring', stiffness: 120, damping: 18 }}>
+                    <Card className="group transition hover:-translate-y-0.5 hover:shadow-glow">
+                      <CardHeader className="pb-3 flex items-center justify-between">
+                        <h4 className="text-xl font-semibold">Partida #{game.id}</h4>
+                        <Badge variant={idx % 2 ? 'violet' : 'emerald'}>{game.topic || 'Pública'}</Badge>
+                      </CardHeader>
+                      <CardBody className="flex items-center justify-between gap-4">
+                        <div className="text-sm text-white/80">
+                          <p>Jugadores: {game.players?.length || 0}</p>
+                          <p>Anfitrión: {game.players?.[0]?.displayName || 'Desconocido'}</p>
+                        </div>
+                        <Button onClick={() => handleJoinPublicGame(game.id)} aria-label={`Unirse a la partida ${game.id}`}>
+                          Unirse
+                        </Button>
+                      </CardBody>
+                    </Card>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
           )}
         </Section>
       </main>
