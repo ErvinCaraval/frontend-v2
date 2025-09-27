@@ -19,7 +19,7 @@ export default function Navbar() {
   return (
     <header className="bg-transparent backdrop-blur-md border-white/10 border-b w-full">
       <div className="flex justify-between items-center mx-auto px-4 py-3 container">
-        <Link to="/" className="flex items-center gap-3">
+        <Link to="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
           <div className="flex justify-center items-center bg-gradient-to-br from-bb-primary to-bb-accent rounded-md w-10 h-10 font-bold text-xl">⚡</div>
           <span className="font-bold text-lg">BrainBlitz</span>
         </Link>
@@ -33,7 +33,8 @@ export default function Navbar() {
 
         <button
           aria-label="Abrir menú"
-          className="md:hidden p-2 rounded-md"
+          aria-expanded={open}
+          className="md:hidden p-3 rounded-md"
           onClick={() => setOpen((v) => !v)}
         >
           <MenuIcon open={open} />
@@ -41,12 +42,12 @@ export default function Navbar() {
       </div>
 
       {/* Mobile drawer */}
-      <div className={`md:hidden bg-bb-bg-primary/95 border-t border-white/5 transition-max-h duration-300 overflow-hidden ${open ? 'max-h-60' : 'max-h-0'}`}>
-        <div className="flex flex-col gap-3 px-4 py-4">
-          {!isHome && <Link to="/" className="px-3 py-2 rounded-md">Inicio</Link>}
-          <Link to="/dashboard" className="px-3 py-2 rounded-md">Panel</Link>
-          {!isHome && <Link to="/ranking" className="px-3 py-2 rounded-md">Ranking</Link>}
-          <Link to="/login" className="bg-bb-primary px-3 py-2 rounded-md text-white">Iniciar</Link>
+      <div className={`md:hidden bg-bb-bg-primary/95 border-t border-white/5 transition-[max-height] duration-300 overflow-hidden ${open ? 'max-h-80' : 'max-h-0'}`}>
+        <div className="flex flex-col gap-2 px-4 py-4">
+          {!isHome && <Link to="/" className="block px-3 py-3 rounded-md text-base" onClick={() => setOpen(false)}>Inicio</Link>}
+          <Link to="/dashboard" className="block px-3 py-3 rounded-md text-base" onClick={() => setOpen(false)}>Panel</Link>
+          {!isHome && <Link to="/ranking" className="block px-3 py-3 rounded-md text-base" onClick={() => setOpen(false)}>Ranking</Link>}
+          <Link to="/login" className="block bg-bb-primary px-3 py-3 rounded-md text-white text-base" onClick={() => setOpen(false)}>Iniciar</Link>
         </div>
       </div>
     </header>
