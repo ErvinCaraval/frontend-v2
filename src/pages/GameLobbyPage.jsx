@@ -19,6 +19,7 @@ export default function GameLobbyPage() {
   const navigate = useNavigate();
   const [connected, setConnected] = useState(false);
   const [connectionTimeout, setConnectionTimeout] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(0);
 
   useEffect(() => {
     if (!user) return;
@@ -31,22 +32,40 @@ export default function GameLobbyPage() {
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       const timeoutDuration = isMobile ? 10000 : 15000; // 10s para móviles, 15s para desktop
       
-      const connectionTimeoutId = setTimeout(() => {
-        if (!socket.connected) {
-          setConnectionTimeout(true);
-          console.warn('[GameLobbyPage] Timeout de conexión alcanzado');
-        }
-      }, timeoutDuration);
+      let connectionTimeoutId;
+      let countdownInterval;
       
       // Forzar reconexión si no está conectado
       if (!socket.connected) {
         console.log('[GameLobbyPage] Socket no conectado, reconectando...');
         socket.disconnect();
         socket.connect();
+        
+        // Solo iniciar timeout si no está conectado
+        setTimeRemaining(timeoutDuration / 1000); // Convertir a segundos
+        
+        connectionTimeoutId = setTimeout(() => {
+          if (!socket.connected) {
+            setConnectionTimeout(true);
+            setTimeRemaining(0);
+            console.warn('[GameLobbyPage] Timeout de conexión alcanzado después de', timeoutDuration, 'ms');
+          }
+        }, timeoutDuration);
+        
+        // Contador visual
+        countdownInterval = setInterval(() => {
+          setTimeRemaining(prev => {
+            if (prev <= 1) {
+              clearInterval(countdownInterval);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
       } else {
         console.log('[GameLobbyPage] Socket ya conectado:', socket.id);
         setConnected(true);
-        clearTimeout(connectionTimeoutId);
+        setConnectionTimeout(false);
       }
       
       // UI optimista
@@ -56,7 +75,13 @@ export default function GameLobbyPage() {
       function onConnect() { 
         setConnected(true); 
         setConnectionTimeout(false);
-        clearTimeout(connectionTimeoutId);
+        setTimeRemaining(0);
+        if (connectionTimeoutId) {
+          clearTimeout(connectionTimeoutId);
+        }
+        if (countdownInterval) {
+          clearInterval(countdownInterval);
+        }
       }
       function onDisconnect() { 
         setConnected(false); 
@@ -64,7 +89,13 @@ export default function GameLobbyPage() {
       function onConnectError(error) {
         console.error('[GameLobbyPage] Error de conexión:', error);
         setConnectionTimeout(true);
-        clearTimeout(connectionTimeoutId);
+        setTimeRemaining(0);
+        if (connectionTimeoutId) {
+          clearTimeout(connectionTimeoutId);
+        }
+        if (countdownInterval) {
+          clearInterval(countdownInterval);
+        }
       }
       
       socket.on('connect', onConnect);
@@ -93,7 +124,12 @@ export default function GameLobbyPage() {
 
       // cleanup
       return () => {
-        clearTimeout(connectionTimeoutId);
+        if (connectionTimeoutId) {
+          clearTimeout(connectionTimeoutId);
+        }
+        if (countdownInterval) {
+          clearInterval(countdownInterval);
+        }
         socket.off('playerJoined');
         socket.off('gameStarted');
         socket.off('error');
@@ -156,7 +192,7 @@ export default function GameLobbyPage() {
     <div className="min-h-screen container px-4 py-8">
       {!connected && !connectionTimeout && (
         <LoadingOverlay 
-          text="Conectando a la sala…" 
+          text={`Conectando a la sala… ${timeRemaining > 0 ? `(${timeRemaining}s)` : ''}`}
           mobileOnly 
         />
       )}
