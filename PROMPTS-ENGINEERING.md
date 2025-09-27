@@ -117,3 +117,87 @@ Meta-Guidelines
 - Prefer Tailwind utilities; phase out legacy CSS in refactored parts.
 - Keep socket interactions robust (timeouts, optimistic UI, listener hygiene).
 
+## 8) Prompt para Generar el Workflow CI/CD
+
+PROMPT FOR AI:
+
+You are a DevOps Engineer specialized in CI/CD for frontend projects built with Vite + React. Your task is to generate a complete workflow using GitHub Actions that:
+
+1. Runs automatically whenever there is a push or pull request to the `main` branch.
+2. Executes all the tests specified in the frontend Vite + React test plan, including:
+   - Functional tests across all views.
+   - UI/UX tests across all views.
+   - Performance tests.
+   - Accessibility (a11y) tests.
+   - Regression tests.
+   - End-to-End (E2E) tests.
+   - Visual Regression Testing.
+3. Only if all tests pass, it should then:
+   - Push the approved changes to GitHub.
+   - Automatically deploy the project to Vercel.
+4. The workflow must include:
+   - Installation of required dependencies.
+   - Execution of unit and integration tests.
+   - Execution of E2E tests.
+   - Execution of visual and accessibility tests.
+   - Verification of Lighthouse results or equivalent tools.
+   - A condition ensuring that deployment only happens if all tests pass.
+5. Deliver the final YAML file ready to be used as a workflow in `.github/workflows/ci-cd.yml`.
+6. Add clear comments in the workflow to explain each step.
+
+The result must be a functional, secure, and optimized workflow for a Vite + React frontend project, following best practices for CI/CD and automated testing.
+
+## 9) Prompt  para Generar un Plan Completo de Pruebas para un Frontend Vite + React
+
+PROMPT FOR AI:
+
+You are a QA Automation Engineer specialized in frontend, particularly in projects built with Vite + React. Your task is to generate a complete and detailed test plan for an existing project, ensuring that all frontend views are evaluated. The plan must include both manual and automated tests, focusing on guaranteeing quality, performance, accessibility, functionality, and user experience.
+
+The plan must include:
+
+1. Functional Tests:
+   - Verification of navigation and routes across all views.
+   - Validation of forms and data in all views.
+   - CRUD verification if applicable.
+   - Validation of API integrations.
+   - Verification of key functionalities in each frontend view.
+
+2. UI/UX Tests:
+   - Verify responsive design on mobile, tablet, and desktop across all views.
+   - Review visual consistency (typography, colors, spacing) across all views.
+   - Validate touch interactions.
+   - Review behavior across different browsers.
+
+3. Performance Tests:
+   - Measure initial load times across all views.
+   - Evaluate performance on mobile devices and slow networks.
+   - Test optimization of images and resources.
+   - Use tools such as Google Lighthouse.
+
+4. Accessibility (a11y) Tests:
+   - Verify color contrast.
+   - Validate ARIA labels.
+   - Test keyboard navigation.
+   - Use screen readers.
+
+5. Regression Tests:
+   - Verify that new functionalities do not break existing ones in any view.
+
+6. End-to-End (E2E) Tests:
+   - Simulate complete user interaction across all views, including navigation and key processes.
+
+7. Visual Regression Testing:
+   - Compare screenshots before and after changes.
+   - Detect unwanted visual differences across all views.
+
+8. Final QA Checklist:
+   - Summary of all tests to be performed.
+   - Recommended tools.
+   - Commands to execute the tests.
+
+9. Final Delivery:
+   - A document or README with the complete test plan ready to be applied to the Vite + React project.
+   - A list of clear steps and procedures to execute each type of test across all views.
+
+Do everything in a single workflow, without asking me for intermediate confirmation. The result must be a complete plan, ready to be applied to the project, including all necessary tests to ensure quality across all frontend views.
+
