@@ -16,6 +16,7 @@ export default function GameLobbyPage() {
   const [status, setStatus] = useState('waiting');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const [connected, setConnected] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -23,7 +24,15 @@ export default function GameLobbyPage() {
     (async () => {
       if (!user) return;
       const socket = await getSocket();
-      socket.connect();
+      if (!socket.connected) socket.connect();
+      // UI optimista
+      setPlayers((prev) => (prev.length === 0 ? [{ uid: user.uid, displayName: user.displayName || user.email, email: user.email }] : prev));
+      setHostId((prev) => prev ?? user.uid);
+
+      function onConnect() { setConnected(true); }
+      function onDisconnect() { setConnected(false); }
+      socket.on('connect', onConnect);
+      socket.on('disconnect', onDisconnect);
       socket.emit('joinGame', { 
         gameId, 
         uid: user.uid, 
@@ -49,6 +58,8 @@ export default function GameLobbyPage() {
         socket.off('playerJoined');
         socket.off('gameStarted');
         socket.off('error');
+        socket.off('connect', onConnect);
+        socket.off('disconnect', onDisconnect);
         disconnectSocket();
       };
     })();
@@ -104,7 +115,7 @@ export default function GameLobbyPage() {
           <CardBody>
             <div className="grid gap-3 sm:grid-cols-2">
               <AnimatePresence>
-                {(players && players.length > 0 ? players : Array.from({ length: 4 }).map((_, i) => ({ uid: `sk-${i}`, _sk: true }))).map((player) => (
+                {(players && players.length > 0 ? players : connected ? [] : Array.from({ length: 4 }).map((_, i) => ({ uid: `sk-${i}`, _sk: true }))).map((player) => (
                   <motion.div key={player.uid} layout initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ type: 'spring', stiffness: 140, damping: 16 }} className={`flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 transition-transform duration-150 hover:-translate-y-0.5 ${player.uid === hostId ? 'ring-1 ring-bb-primary/50' : ''}`}>
                     {player._sk ? (
                       <>
