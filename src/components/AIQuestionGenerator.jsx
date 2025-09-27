@@ -17,12 +17,12 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
   const [difficultyLevels, setDifficultyLevels] = useState([]);
   const [selectedTopic, setSelectedTopic] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('medium');
-  const [questionCount, setQuestionCount] = useState(5);
-  const [questionCountInput, setQuestionCountInput] = useState('5');
+  const [questionCount, setQuestionCount] = useState(null);
+  const [questionCountInput, setQuestionCountInput] = useState('');
   const [useAI, setUseAI] = useState(false);
   const [showManualForm, setShowManualForm] = useState(false);
-  const [manualCount, setManualCount] = useState(3);
-  const [manualCountInput, setManualCountInput] = useState('3');
+  const [manualCount, setManualCount] = useState(null);
+  const [manualCountInput, setManualCountInput] = useState('');
   const [manualStep, setManualStep] = useState(0);
   const [manualQuestions, setManualQuestions] = useState([]);
   const [manualTopic, setManualTopic] = useState('');
@@ -40,8 +40,8 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
   }, []);
 
   // Mantener inputs string sincronizados cuando el valor numérico cambie por stepper u otros
-  useEffect(() => { setQuestionCountInput(String(questionCount)); }, [questionCount]);
-  useEffect(() => { setManualCountInput(String(manualCount)); }, [manualCount]);
+  useEffect(() => { setQuestionCountInput(typeof questionCount === 'number' ? String(questionCount) : ''); }, [questionCount]);
+  useEffect(() => { setManualCountInput(typeof manualCount === 'number' ? String(manualCount) : ''); }, [manualCount]);
 
   const loadTopics = async () => {
     try {
@@ -235,7 +235,7 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
           <div>
             <label htmlFor="numQuestions" className="block mb-1 text-sm text-white/80">Cantidad</label>
             <div className="flex items-stretch gap-2">
-              <Button type="button" variant="secondary" className="px-3" onClick={() => setQuestionCount((c) => Math.max(1, c - 1))} aria-label="Disminuir">−</Button>
+              <Button type="button" variant="secondary" className="px-3" onClick={() => setQuestionCount((c) => { const base = typeof c === 'number' ? c : 1; const next = Math.max(1, base - 1); setQuestionCountInput(String(next)); return next; })} aria-label="Disminuir">−</Button>
               <Input
                 id="numQuestions"
                 type="text"
@@ -246,18 +246,24 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
                   const digits = e.target.value.replace(/\D+/g, '').slice(0, 2)
                   setQuestionCountInput(digits)
                   const num = digits ? parseInt(digits, 10) : NaN
-                  if (!Number.isNaN(num)) setQuestionCount(num)
+                  if (!Number.isNaN(num)) setQuestionCount(num); else setQuestionCount(null)
                 }}
                 onBlur={() => {
-                  const num = parseInt(questionCountInput || '0', 10)
-                  const clamped = Math.min(Math.max(1, Number.isNaN(num) ? 5 : num), 20)
+                  const num = parseInt(questionCountInput || '', 10)
+                  if (Number.isNaN(num)) {
+                    setQuestionCount(null)
+                    setQuestionCountInput('')
+                    return
+                  }
+                  const clamped = Math.min(Math.max(1, num), 20)
                   setQuestionCount(clamped)
                   setQuestionCountInput(String(clamped))
                 }}
                 required
+                placeholder="1-20"
                 className="w-24 text-center"
               />
-              <Button type="button" variant="secondary" className="px-3" onClick={() => setQuestionCount((c) => Math.min(20, c + 1))} aria-label="Aumentar">+</Button>
+              <Button type="button" variant="secondary" className="px-3" onClick={() => setQuestionCount((c) => { const base = typeof c === 'number' ? c : 0; const next = Math.min(20, base + 1); setQuestionCountInput(String(next)); return next; })} aria-label="Aumentar">+</Button>
             </div>
           </div>
           {error && <Alert intent="error" className="sm:col-span-3">{error}</Alert>}
@@ -289,7 +295,7 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
               <div>
                 <label className="block mb-1 text-sm text-white/80">¿Cuántas preguntas?</label>
                 <div className="flex items-stretch gap-2">
-                  <Button type="button" variant="secondary" className="px-3" onClick={() => setManualCount((c) => Math.max(1, c - 1))} aria-label="Disminuir">−</Button>
+                  <Button type="button" variant="secondary" className="px-3" onClick={() => setManualCount((c) => { const base = typeof c === 'number' ? c : 1; const next = Math.max(1, base - 1); setManualCountInput(String(next)); return next; })} aria-label="Disminuir">−</Button>
                   <Input
                     type="text"
                     inputMode="numeric"
@@ -299,18 +305,24 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
                       const digits = e.target.value.replace(/\D+/g, '').slice(0, 2)
                       setManualCountInput(digits)
                       const num = digits ? parseInt(digits, 10) : NaN
-                      if (!Number.isNaN(num)) setManualCount(num)
+                      if (!Number.isNaN(num)) setManualCount(num); else setManualCount(null)
                     }}
                     onBlur={() => {
-                      const num = parseInt(manualCountInput || '0', 10)
-                      const clamped = Math.min(Math.max(1, Number.isNaN(num) ? 3 : num), 20)
+                      const num = parseInt(manualCountInput || '', 10)
+                      if (Number.isNaN(num)) {
+                        setManualCount(null)
+                        setManualCountInput('')
+                        return
+                      }
+                      const clamped = Math.min(Math.max(1, num), 20)
                       setManualCount(clamped)
                       setManualCountInput(String(clamped))
                     }}
                     required
+                    placeholder="1-20"
                     className="w-24 text-center"
                   />
-                  <Button type="button" variant="secondary" className="px-3" onClick={() => setManualCount((c) => Math.min(20, c + 1))} aria-label="Aumentar">+</Button>
+                  <Button type="button" variant="secondary" className="px-3" onClick={() => setManualCount((c) => { const base = typeof c === 'number' ? c : 0; const next = Math.min(20, base + 1); setManualCountInput(String(next)); return next; })} aria-label="Aumentar">+</Button>
                 </div>
               </div>
               <div className="flex justify-end gap-3">
