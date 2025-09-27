@@ -146,20 +146,20 @@ export default function GamePage() {
   };
 
   return (
-    <div className="container min-h-screen px-4 py-6 grid gap-6 lg:grid-cols-[2fr_1fr]">
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <h2 className="text-2xl md:text-3xl font-bold">🎯 Juego de Preguntas</h2>
-          <div className="mt-2 flex items-center gap-4">
-            <span className="text-sm text-white/80">Pregunta {questionIndex + 1} de {totalQuestions || '?'}</span>
-            <div className="h-2 w-48 rounded-full bg-white/10">
+    <div className="container min-h-screen px-4 py-4 md:py-6 grid gap-4 md:gap-6 lg:grid-cols-[2fr_1fr]">
+      <header className="flex items-start md:items-end justify-between gap-3 md:gap-4">
+        <div className="min-w-0">
+          <h2 className="text-xl md:text-2xl font-bold">🎯 Juego de Preguntas</h2>
+          <div className="mt-2 flex items-center gap-3 md:gap-4">
+            <span className="text-xs md:text-sm text-white/80 whitespace-nowrap">Pregunta {questionIndex + 1} de {totalQuestions || '?'}</span>
+            <div className="h-2 w-32 md:w-48 rounded-full bg-white/10">
               <div className="h-2 rounded-full bg-gradient-to-r from-bb-primary to-bb-accent" style={{ width: `${((questionIndex + 1) / (totalQuestions || 1)) * 100}%` }} />
             </div>
           </div>
         </div>
-        <div className="text-right">
-          <div className="text-xl font-bold">#{getPlayerRank()}</div>
-          <div className="text-xs text-white/70">Tu posición</div>
+        <div className="text-right shrink-0">
+          <div className="text-lg md:text-xl font-bold">#{getPlayerRank()}</div>
+          <div className="text-[10px] md:text-xs text-white/70">Tu posición</div>
         </div>
       </header>
 
@@ -167,15 +167,18 @@ export default function GamePage() {
         {question && (
           <Card className="transition hover:shadow-glow">
             <CardBody className="space-y-4">
-              <div className="flex items-start justify-between gap-4">
-                <Question
-                  question={question.question}
-                  options={question.options}
-                  onSelect={handleSelect}
-                  selected={selected}
-                />
+              <div className="flex items-start justify-between gap-3 md:gap-4">
+                <div className="min-w-0 flex-1">
+                  <Question
+                    text={question.text}
+                    question={question.question}
+                    options={question.options}
+                    onSelect={handleSelect}
+                    selected={selected}
+                  />
+                </div>
                 {!showResult && (
-                  <div className="shrink-0">
+                  <div className="shrink-0 pt-1">
                     <Timer
                       key={timerKey}
                       seconds={10}
