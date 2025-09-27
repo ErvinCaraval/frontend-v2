@@ -6,6 +6,7 @@ import { getSocket, disconnectSocket } from '../services/socket';
 import Button from '../components/ui/Button';
 import Alert from '../components/ui/Alert';
 import { Card, CardBody, CardHeader } from '../components/ui/Card';
+import Skeleton, { SkeletonText } from '../components/ui/Skeleton';
 
 export default function GameLobbyPage() {
   const { gameId } = useParams();
@@ -103,13 +104,22 @@ export default function GameLobbyPage() {
           <CardBody>
             <div className="grid gap-3 sm:grid-cols-2">
               <AnimatePresence>
-                {players.map((player) => (
+                {(players && players.length > 0 ? players : Array.from({ length: 4 }).map((_, i) => ({ uid: `sk-${i}`, _sk: true }))).map((player) => (
                   <motion.div key={player.uid} layout initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ type: 'spring', stiffness: 140, damping: 16 }} className={`flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 transition-transform duration-150 hover:-translate-y-0.5 ${player.uid === hostId ? 'ring-1 ring-bb-primary/50' : ''}`}>
-                    <div className="text-xl">{player.uid === hostId ? '👑' : '👤'}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-semibold truncate">{player.displayName || player.email}</div>
-                      {player.uid === hostId && <div className="text-xs text-white/70">Anfitrión</div>}
-                    </div>
+                    {player._sk ? (
+                      <>
+                        <Skeleton className="h-8 w-8 rounded-full" />
+                        <div className="flex-1 min-w-0"><Skeleton className="h-4 w-40" /></div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-xl">{player.uid === hostId ? '👑' : '👤'}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold truncate">{player.displayName || player.email}</div>
+                          {player.uid === hostId && <div className="text-xs text-white/70">Anfitrión</div>}
+                        </div>
+                      </>
+                    )}
                   </motion.div>
                 ))}
               </AnimatePresence>

@@ -9,6 +9,7 @@ import Alert from '../components/ui/Alert';
 import Section from '../components/ui/Section';
 import { Card, CardBody, CardHeader } from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
+import Skeleton, { SkeletonText } from '../components/ui/Skeleton';
 const AIQuestionGenerator = React.lazy(() => import('../components/AIQuestionGenerator'));
 
 export default function DashboardPage() {
@@ -188,8 +189,21 @@ export default function DashboardPage() {
         </div>
 
         <Section title="🌐 Partidas públicas" subtitle="Únete a partidas abiertas para todos" className="mt-8">
-          {!Array.isArray(publicGames) || publicGames.length === 0 ? (
-            <p className="text-center text-white/60 italic py-6">No hay partidas públicas disponibles por ahora</p>
+          {!Array.isArray(publicGames) ? null : publicGames.length === 0 ? (
+            <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Card key={i}>
+                  <CardHeader className="pb-3 flex items-center justify-between">
+                    <Skeleton className="h-5 w-40" />
+                    <Skeleton className="h-6 w-16 rounded-full" />
+                  </CardHeader>
+                  <CardBody className="flex items-center justify-between gap-4">
+                    <SkeletonText lines={2} />
+                    <Skeleton className="h-10 w-24 rounded-xl" />
+                  </CardBody>
+                </Card>
+              ))}
+            </div>
           ) : (
             <motion.div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" initial="hidden" animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06 } } }}>
               <AnimatePresence>
