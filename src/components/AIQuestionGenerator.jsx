@@ -161,12 +161,7 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
     }
   };
 
-  // Reinicia el contador de preguntas al cerrar el generador para evitar confusión
-  useEffect(() => {
-    if (!loading && !error && generatedQuestions.length === 0) {
-      setQuestionCount(5);
-    }
-  }, [loading, error, generatedQuestions]);
+  // Mantener vacío por defecto; no autocompletar cantidad
 
   return (
     <Modal open={true} title="🤖 Generador de Preguntas" onClose={onClose}>
