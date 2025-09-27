@@ -175,18 +175,18 @@ export default function GamePage() {
                     options={question.options}
                     onSelect={handleSelect}
                     selected={selected}
+                    showResult={showResult}
+                    correctIndex={result?.correctAnswerIndex ?? null}
                   />
                 </div>
-                {!showResult && (
-                  <div className="shrink-0 pt-1">
-                    <Timer
-                      key={timerKey}
-                      seconds={10}
-                      onEnd={handleTimerEnd}
-                      onTick={setTimeLeft}
-                    />
-                  </div>
-                )}
+                <div className="shrink-0 pt-1">
+                  <Timer
+                    key={timerKey}
+                    seconds={10}
+                    onEnd={handleTimerEnd}
+                    onTick={setTimeLeft}
+                  />
+                </div>
               </div>
               {showResult && result && (
                 <Alert intent="info">
