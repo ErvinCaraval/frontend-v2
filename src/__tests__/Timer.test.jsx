@@ -38,6 +38,30 @@ describe('Timer', () => {
     expect(onTick).toHaveBeenCalledWith(2)
   })
 
+  it('should countdown step by step', () => {
+    render(<Timer seconds={3} />)
+    
+    expect(screen.getByText('3')).toBeInTheDocument()
+    
+    // Segundo 1
+    act(() => {
+      vi.advanceTimersByTime(1000)
+    })
+    expect(screen.getByText('2')).toBeInTheDocument()
+    
+    // Segundo 2
+    act(() => {
+      vi.advanceTimersByTime(1000)
+    })
+    expect(screen.getByText('1')).toBeInTheDocument()
+    
+    // Segundo 3
+    act(() => {
+      vi.advanceTimersByTime(1000)
+    })
+    expect(screen.getByText('0')).toBeInTheDocument()
+  })
+
   it('should call onEnd when timer reaches 0', () => {
     const onEnd = vi.fn()
     render(<Timer seconds={3} onEnd={onEnd} />)

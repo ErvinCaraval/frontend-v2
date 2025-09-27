@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import { getSocket } from '../services/socket';
@@ -101,18 +101,21 @@ export default function GamePage() {
         socket.off('gameStarted');
       })();
     };
-  }, [user, gameId, navigate, question]);
+  }, [user, gameId, navigate]);
+
+  const questionRef = useRef(question);
+  questionRef.current = question;
 
   const handleSelect = useCallback((idx) => {
     if (selected !== null) return; // Prevent multiple selections
     setSelected(idx);
     // Enviar también el valor de la opción seleccionada
-    const answerValue = question && Array.isArray(question.options) ? question.options[idx] : undefined;
+    const answerValue = questionRef.current && Array.isArray(questionRef.current.options) ? questionRef.current.options[idx] : undefined;
     (async () => {
       const socket = await getSocket();
       socket.emit('submitAnswer', { gameId, uid: user.uid, answerIndex: idx, answerValue });
     })();
-  }, [gameId, user, selected, question]);
+  }, [gameId, user, selected]);
 
   const handleTimerEnd = useCallback(() => {
     if (selected === null) {
