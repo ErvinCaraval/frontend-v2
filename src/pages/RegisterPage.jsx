@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { auth, db } from '../services/firebase';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { auth } from '../services/firebase';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate, Link } from 'react-router-dom';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';

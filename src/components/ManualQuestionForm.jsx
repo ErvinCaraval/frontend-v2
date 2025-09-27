@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../AuthContext';
 import Button from './ui/Button';
 import Input from './ui/Input';
@@ -23,7 +23,7 @@ const ManualQuestionForm = ({ topics, onQuestionCreated, onCancel }) => {
     }));
   };
 
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     if (!formData.question.trim()) {
       return 'La pregunta es requerida';
     }
@@ -31,12 +31,12 @@ const ManualQuestionForm = ({ topics, onQuestionCreated, onCancel }) => {
       return 'Todas las opciones son requeridas';
     }
     return '';
-  };
+  }, [formData]);
 
   useEffect(() => {
     const validationError = validateForm();
     setError(validationError);
-  }, [formData, user]);
+  }, [formData, user, validateForm]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -20,7 +20,7 @@ export default function GamePage() {
   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState(null);
   const [timerKey, setTimerKey] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(10);
+  const [, setTimeLeft] = useState(10);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function GamePage() {
       // Si no llega pregunta en 5 segundos, mostrar error
     })();
     // Si no llega pregunta en 5 segundos, mostrar error
-    const timeout = setTimeout(() => {
+    setTimeout(() => {
       if (!question) setQuestionTimeout(true);
     }, 5000);
 
@@ -101,7 +101,7 @@ export default function GamePage() {
         socket.off('gameStarted');
       })();
     };
-  }, [user, gameId, navigate]);
+  }, [user, gameId, navigate, question]);
 
   const handleSelect = useCallback((idx) => {
     if (selected !== null) return; // Prevent multiple selections
@@ -112,7 +112,7 @@ export default function GamePage() {
       const socket = await getSocket();
       socket.emit('submitAnswer', { gameId, uid: user.uid, answerIndex: idx, answerValue });
     })();
-  }, [gameId, user, selected]);
+  }, [gameId, user, selected, question]);
 
   const handleTimerEnd = useCallback(() => {
     if (selected === null) {
@@ -123,21 +123,21 @@ export default function GamePage() {
     }
   }, [gameId, user, selected]);
 
-  const getOptionColor = (index) => {
-    if (!showResult) {
-      return selected === index ? 'selected' : '';
-    }
-    
-    if (index === result.correctAnswerIndex) {
-      return 'correct';
-    }
-    
-    if (selected === index && index !== result.correctAnswerIndex) {
-      return 'incorrect';
-    }
-    
-    return '';
-  };
+  // const getOptionColor = (index) => {
+  //   if (!showResult) {
+  //     return selected === index ? 'selected' : '';
+  //   }
+  //   
+  //   if (index === result.correctAnswerIndex) {
+  //     return 'correct';
+  //   }
+  //   
+  //   if (selected === index && index !== result.correctAnswerIndex) {
+  //     return 'incorrect';
+  //   }
+  //   
+  //   return '';
+  // };
 
   const getPlayerRank = () => {
     const sortedPlayers = [...players].sort((a, b) => b.score - a.score);

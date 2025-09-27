@@ -3,7 +3,6 @@ import mockDb from '../services/mockDb';
 import { Card, CardBody, CardHeader } from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
-import Alert from '../components/ui/Alert';
 
 const emptyForm = {
   text: '',

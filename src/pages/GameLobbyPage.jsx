@@ -7,14 +7,14 @@ import Button from '../components/ui/Button';
 import Alert from '../components/ui/Alert';
 import { Card, CardBody, CardHeader } from '../components/ui/Card';
 import LoadingOverlay from '../components/ui/LoadingOverlay';
-import Skeleton, { SkeletonText } from '../components/ui/Skeleton';
+import Skeleton from '../components/ui/Skeleton';
 
 export default function GameLobbyPage() {
   const { gameId } = useParams();
   const { user } = useAuth();
   const [players, setPlayers] = useState([]);
   const [hostId, setHostId] = useState(null);
-  const [status, setStatus] = useState('waiting');
+  const [status] = useState('waiting');
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const [connected, setConnected] = useState(false);

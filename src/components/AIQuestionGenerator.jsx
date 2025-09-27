@@ -1,21 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../AuthContext';
-import { useNavigate } from 'react-router-dom';
 import ManualQuestionForm from './ManualQuestionForm';
-import { fetchTopics, fetchDifficultyLevels, fetchWithRetry } from '../services/api';
+import { fetchTopics, fetchDifficultyLevels } from '../services/api';
 import Button from './ui/Button';
 import Input from './ui/Input';
 import Alert from './ui/Alert';
-import Section from './ui/Section';
 import Modal from './ui/Modal';
 import Spinner from './ui/Spinner';
 import LoadingOverlay from './ui/LoadingOverlay';
 
 const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [topics, setTopics] = useState([]);
-  const [difficultyLevels, setDifficultyLevels] = useState([]);
   const [selectedTopic, setSelectedTopic] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('medium');
   const [questionCount, setQuestionCount] = useState(null);
@@ -29,11 +25,9 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
   const [manualTopic, setManualTopic] = useState('');
   const [loading, setLoading] = useState(false);
   
-  // No necesitamos monitorear este cambio de estado
   const [error, setError] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
-  const [generatedQuestions, setGeneratedQuestions] = useState([]);
-  const [canCreateGame, setCanCreateGame] = useState(false);
+  const [difficultyLevels, setDifficultyLevels] = useState([]);
 
   useEffect(() => {
     loadTopics();
