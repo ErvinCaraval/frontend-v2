@@ -3,25 +3,54 @@ import React, { useEffect, useState, useRef } from 'react';
 export default function Timer({ seconds = 20, onEnd, onTick }) {
   const [time, setTime] = useState(seconds);
   const intervalRef = useRef();
+  const isRunningRef = useRef(false);
 
+  // Resetear el timer cuando cambian los segundos
   useEffect(() => {
     setTime(seconds);
-  }, [seconds]);
-
-  useEffect(() => {
-    if (time === 0) {
-      if (onEnd) onEnd();
-      return;
+    isRunningRef.current = true;
+    
+    // Limpiar interval anterior si existe
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
     }
-    intervalRef.current = setInterval(() => {
-      setTime(t => t - 1);
-    }, 1000);
-    return () => clearInterval(intervalRef.current);
-  }, [time, onEnd]);
+    
+    // Solo iniciar el timer si los segundos son mayores a 0
+    if (seconds > 0) {
+      intervalRef.current = setInterval(() => {
+        setTime(prevTime => {
+          const newTime = prevTime - 1;
+          if (newTime <= 0) {
+            isRunningRef.current = false;
+            if (onEnd) onEnd();
+            if (intervalRef.current) {
+              clearInterval(intervalRef.current);
+            }
+          }
+          return newTime;
+        });
+      }, 1000);
+    }
+    
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [seconds, onEnd]);
 
   useEffect(() => {
     if (onTick) onTick(time);
   }, [time, onTick]);
+
+  // Cleanup al desmontar el componente
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
   const getTimerColor = () => {
     if (time <= 3) return 'text-red-300 border-red-400/40';
