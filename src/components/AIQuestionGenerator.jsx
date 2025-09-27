@@ -18,9 +18,11 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
   const [selectedTopic, setSelectedTopic] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('medium');
   const [questionCount, setQuestionCount] = useState(5);
+  const [questionCountInput, setQuestionCountInput] = useState('5');
   const [useAI, setUseAI] = useState(false);
   const [showManualForm, setShowManualForm] = useState(false);
   const [manualCount, setManualCount] = useState(3);
+  const [manualCountInput, setManualCountInput] = useState('3');
   const [manualStep, setManualStep] = useState(0);
   const [manualQuestions, setManualQuestions] = useState([]);
   const [manualTopic, setManualTopic] = useState('');
@@ -36,6 +38,10 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
     loadTopics();
     loadDifficultyLevels();
   }, []);
+
+  // Mantener inputs string sincronizados cuando el valor numérico cambie por stepper u otros
+  useEffect(() => { setQuestionCountInput(String(questionCount)); }, [questionCount]);
+  useEffect(() => { setManualCountInput(String(manualCount)); }, [manualCount]);
 
   const loadTopics = async () => {
     try {
@@ -232,11 +238,22 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
               <Button type="button" variant="secondary" className="px-3" onClick={() => setQuestionCount((c) => Math.max(1, c - 1))} aria-label="Disminuir">−</Button>
               <Input
                 id="numQuestions"
-                type="number"
-                value={questionCount}
-                onChange={(e) => setQuestionCount(Math.min(Math.max(1, parseInt(e.target.value) || 1), 20))}
-                min={1}
-                max={20}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={questionCountInput}
+                onChange={(e) => {
+                  const digits = e.target.value.replace(/\D+/g, '').slice(0, 2)
+                  setQuestionCountInput(digits)
+                  const num = digits ? parseInt(digits, 10) : NaN
+                  if (!Number.isNaN(num)) setQuestionCount(num)
+                }}
+                onBlur={() => {
+                  const num = parseInt(questionCountInput || '0', 10)
+                  const clamped = Math.min(Math.max(1, Number.isNaN(num) ? 5 : num), 20)
+                  setQuestionCount(clamped)
+                  setQuestionCountInput(String(clamped))
+                }}
                 required
                 className="w-24 text-center"
               />
@@ -274,11 +291,22 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
                 <div className="flex items-stretch gap-2">
                   <Button type="button" variant="secondary" className="px-3" onClick={() => setManualCount((c) => Math.max(1, c - 1))} aria-label="Disminuir">−</Button>
                   <Input
-                    type="number"
-                    value={manualCount}
-                    onChange={e => setManualCount(Math.min(Math.max(1, parseInt(e.target.value) || 1), 20))}
-                    min={1}
-                    max={20}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={manualCountInput}
+                    onChange={e => {
+                      const digits = e.target.value.replace(/\D+/g, '').slice(0, 2)
+                      setManualCountInput(digits)
+                      const num = digits ? parseInt(digits, 10) : NaN
+                      if (!Number.isNaN(num)) setManualCount(num)
+                    }}
+                    onBlur={() => {
+                      const num = parseInt(manualCountInput || '0', 10)
+                      const clamped = Math.min(Math.max(1, Number.isNaN(num) ? 3 : num), 20)
+                      setManualCount(clamped)
+                      setManualCountInput(String(clamped))
+                    }}
                     required
                     className="w-24 text-center"
                   />
