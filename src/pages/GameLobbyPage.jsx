@@ -102,7 +102,7 @@ export default function GameLobbyPage() {
           <CardBody>
             <div className="grid gap-3 sm:grid-cols-2">
               {players.map((player) => (
-                <div key={player.uid} className={`flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 ${player.uid === hostId ? 'ring-1 ring-bb-primary/50' : ''}`}>
+                <div key={player.uid} className={`flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 transition-transform duration-150 hover:-translate-y-0.5 ${player.uid === hostId ? 'ring-1 ring-bb-primary/50' : ''}`}>
                   <div className="text-xl">{player.uid === hostId ? '👑' : '👤'}</div>
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold truncate">{player.displayName || player.email}</div>

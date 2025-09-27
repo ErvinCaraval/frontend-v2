@@ -7,6 +7,7 @@ import Input from '../components/ui/Input';
 import Alert from '../components/ui/Alert';
 import Section from '../components/ui/Section';
 import { Card, CardBody, CardHeader } from '../components/ui/Card';
+import Badge from '../components/ui/Badge';
 const AIQuestionGenerator = React.lazy(() => import('../components/AIQuestionGenerator'));
 
 export default function DashboardPage() {
@@ -190,10 +191,11 @@ export default function DashboardPage() {
             <p className="text-center text-white/60 italic py-6">No hay partidas públicas disponibles por ahora</p>
           ) : (
             <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {publicGames.map((game) => (
-                <Card key={game.id} className="group">
-                  <CardHeader className="pb-3">
+              {publicGames.map((game, idx) => (
+                <Card key={game.id} className="group transition hover:-translate-y-0.5 hover:shadow-glow">
+                  <CardHeader className="pb-3 flex items-center justify-between">
                     <h4 className="text-xl font-semibold">Partida #{game.id}</h4>
+                    <Badge variant={idx % 2 ? 'violet' : 'emerald'}>{game.topic || 'Pública'}</Badge>
                   </CardHeader>
                   <CardBody className="flex items-center justify-between gap-4">
                     <div className="text-sm text-white/80">
