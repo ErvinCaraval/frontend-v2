@@ -8,6 +8,7 @@ import Input from './ui/Input';
 import Alert from './ui/Alert';
 import Section from './ui/Section';
 import Modal from './ui/Modal';
+import Spinner from './ui/Spinner';
 
 const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
   const { user } = useAuth();
@@ -227,20 +228,27 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
           </div>
           <div>
             <label htmlFor="numQuestions" className="block mb-1 text-sm text-white/80">Cantidad</label>
-            <Input
-              id="numQuestions"
-              type="number"
-              value={questionCount}
-              onChange={(e) => setQuestionCount(Math.min(Math.max(1, parseInt(e.target.value) || 1), 20))}
-              min={1}
-              max={20}
-              required
-            />
+            <div className="flex items-stretch gap-2">
+              <Button type="button" variant="secondary" className="px-3" onClick={() => setQuestionCount((c) => Math.max(1, c - 1))} aria-label="Disminuir">−</Button>
+              <Input
+                id="numQuestions"
+                type="number"
+                value={questionCount}
+                onChange={(e) => setQuestionCount(Math.min(Math.max(1, parseInt(e.target.value) || 1), 20))}
+                min={1}
+                max={20}
+                required
+                className="w-24 text-center"
+              />
+              <Button type="button" variant="secondary" className="px-3" onClick={() => setQuestionCount((c) => Math.min(20, c + 1))} aria-label="Aumentar">+</Button>
+            </div>
           </div>
           {error && <Alert intent="error" className="sm:col-span-3">{error}</Alert>}
-          <div className="sm:col-span-3 mt-2 flex flex-wrap gap-3 justify-end">
+          <div className="sm:col-span-3 mt-2 flex flex-wrap gap-3 justify-end items-center">
             <Button type="button" variant="secondary" onClick={() => setUseAI(false)} disabled={loading}>Atrás</Button>
-            <Button type="submit" disabled={loading}>{loading ? 'Creando…' : 'Crear preguntas'}</Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? (<><Spinner size={16} className="mr-2" />Creando…</>) : 'Crear preguntas'}
+            </Button>
           </div>
         </form>
       )}
@@ -263,15 +271,19 @@ const AIQuestionGenerator = ({ onQuestionsGenerated, onClose }) => {
               </div>
               <div>
                 <label className="block mb-1 text-sm text-white/80">¿Cuántas preguntas?</label>
-                <Input
-                  type="number"
-                  value={manualCount}
-                  onChange={e => setManualCount(Math.min(Math.max(1, parseInt(e.target.value) || 1), 20))}
-                  min={1}
-                  max={20}
-                  required
-                  className="w-32"
-                />
+                <div className="flex items-stretch gap-2">
+                  <Button type="button" variant="secondary" className="px-3" onClick={() => setManualCount((c) => Math.max(1, c - 1))} aria-label="Disminuir">−</Button>
+                  <Input
+                    type="number"
+                    value={manualCount}
+                    onChange={e => setManualCount(Math.min(Math.max(1, parseInt(e.target.value) || 1), 20))}
+                    min={1}
+                    max={20}
+                    required
+                    className="w-24 text-center"
+                  />
+                  <Button type="button" variant="secondary" className="px-3" onClick={() => setManualCount((c) => Math.min(20, c + 1))} aria-label="Aumentar">+</Button>
+                </div>
               </div>
               <div className="flex justify-end gap-3">
                 <Button type="button" variant="secondary" onClick={() => setShowManualForm(false)}>Volver</Button>
