@@ -190,10 +190,12 @@ export default function DashboardPage() {
       }
 
       setPublicGames((prevGames) => prevGames.filter((game) => game.id !== gameId));
-      alert('Partida eliminada con éxito.');
+      setSuccessMessage('¡Partida eliminada con éxito!');
+      setTimeout(() => setSuccessMessage(''), 5000);
     } catch (error) {
       console.error(error);
-      alert('Error al eliminar la partida.');
+      setErrorMessage('Hubo un problema al intentar eliminar la partida. Por favor, inténtalo de nuevo.');
+      setTimeout(() => setErrorMessage(''), 5000);
     }
   };
 
