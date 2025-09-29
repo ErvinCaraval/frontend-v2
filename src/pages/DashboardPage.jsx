@@ -173,20 +173,44 @@ export default function DashboardPage() {
     setTimeout(() => setSuccessMessage(''), 5000);
   };
 
+  const handleDeleteGame = async (gameId) => {
+    try {
+      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const token = await user.getIdToken(); // Obtener el token JWT del usuario
+
+      const response = await fetch(`${apiBase}/api/games/${gameId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('No se pudo eliminar la partida.');
+      }
+
+      setPublicGames((prevGames) => prevGames.filter((game) => game.id !== gameId));
+      alert('Partida eliminada con éxito.');
+    } catch (error) {
+      console.error(error);
+      alert('Error al eliminar la partida.');
+    }
+  };
+
   return (
     <div className="min-h-screen">
       {loading && <LoadingOverlay text="Creando partida…" mobileOnly />}
       {(successMessage || errorMessage) && (
-        <div aria-live="polite" className="fixed top-6 inset-x-0 z-[2000] px-4 flex justify-center">
+        <div aria-live="polite" className="top-6 z-[2000] fixed inset-x-0 flex justify-center px-4">
           <Alert intent={errorMessage ? 'error' : 'success'} className="shadow-xl">
             {errorMessage || successMessage}
           </Alert>
         </div>
       )}
 
-      <header className="sticky top-0 z-40 w-full border-b border-white/10 bg-white/5 backdrop-blur-md">
-        <div className="container flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-4 py-5">
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+      <header className="top-0 z-40 sticky bg-white/5 backdrop-blur-md border-white/10 border-b w-full">
+        <div className="flex md:flex-row flex-col md:justify-between md:items-center gap-4 px-4 py-5 container">
+          <h2 className="font-bold text-2xl md:text-3xl tracking-tight">
             ¡Bienvenido, {user?.displayName || user?.email}!
           </h2>
           <div className="flex flex-wrap gap-3">
@@ -200,8 +224,8 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className="container px-4 py-8 md:py-10">
-        <div className="grid gap-6 md:gap-8 grid-cols-1 md:grid-cols-2">
+      <main className="px-4 py-8 md:py-10 container">
+        <div className="gap-6 md:gap-8 grid grid-cols-1 md:grid-cols-2">
           <Section
             title="🎮 Crear nueva partida"
             subtitle="Inicia una partida y invita a tus amigos"
@@ -223,7 +247,7 @@ export default function DashboardPage() {
               >
                 🤖 Generar preguntas
               </Button>
-              <div className="rounded-xl border border-indigo-400/20 bg-indigo-500/10 px-4 py-3 text-sm text-white/85">
+              <div className="bg-indigo-500/10 px-4 py-3 border border-indigo-400/20 rounded-xl text-white/85 text-sm">
                 <strong className="text-indigo-300">💡 Ayuda:</strong> Antes de crear una partida, puedes generar preguntas automáticamente o agregar preguntas manuales personalizadas. Así tu juego tendrá contenido único, reciente y adaptado a tus necesidades.
               </div>
             </div>
@@ -231,7 +255,7 @@ export default function DashboardPage() {
 
           <Section title="🔗 Unirse a partida" subtitle="Ingresa un código de 6 caracteres para unirte">
             <form
-              className="flex flex-col sm:flex-row items-stretch gap-3"
+              className="flex sm:flex-row flex-col items-stretch gap-3"
               onSubmit={(e) => { e.preventDefault(); handleJoinGame(); }}
               aria-labelledby="join-section-title"
             >
@@ -245,7 +269,7 @@ export default function DashboardPage() {
                 value={gameCode}
                 onChange={(e) => setGameCode(e.target.value)}
                 maxLength={6}
-                className="text-center tracking-widest font-semibold"
+                className="font-semibold text-center tracking-widest"
               />
               <Button type="submit" variant="secondary">
                 Unirse
@@ -256,38 +280,47 @@ export default function DashboardPage() {
 
         <Section title="🌐 Partidas públicas" subtitle="Únete a partidas abiertas para todos" className="mt-8">
           {!Array.isArray(publicGames) ? null : publicGames.length === 0 ? (
-            <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="gap-4 sm:gap-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
                 <Card key={i}>
-                  <CardHeader className="pb-3 flex items-center justify-between">
-                    <Skeleton className="h-5 w-40" />
-                    <Skeleton className="h-6 w-16 rounded-full" />
+                  <CardHeader className="flex justify-between items-center pb-3">
+                    <Skeleton className="w-40 h-5" />
+                    <Skeleton className="rounded-full w-16 h-6" />
                   </CardHeader>
-                  <CardBody className="flex items-center justify-between gap-4">
+                  <CardBody className="flex justify-between items-center gap-4">
                     <SkeletonText lines={2} />
-                    <Skeleton className="h-10 w-24 rounded-xl" />
+                    <Skeleton className="rounded-xl w-24 h-10" />
                   </CardBody>
                 </Card>
               ))}
             </div>
           ) : (
-            <motion.div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" initial="hidden" animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06 } } }}>
+            <motion.div className="gap-4 sm:gap-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" initial="hidden" animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06 } } }}>
               <AnimatePresence>
                 {publicGames.map((game, idx) => (
                   <motion.div key={game.id} layout initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ type: 'spring', stiffness: 120, damping: 18 }}>
-                    <Card className="group transition hover:-translate-y-0.5 hover:shadow-glow">
-                      <CardHeader className="pb-3 flex items-center justify-between">
-                        <h4 className="text-xl font-semibold">Partida #{game.id}</h4>
+                    <Card className="group hover:shadow-glow transition hover:-translate-y-0.5">
+                      <CardHeader className="flex justify-between items-center pb-3">
+                        <h4 className="font-semibold text-xl">Partida #{game.id}</h4>
                         <Badge variant={idx % 2 ? 'violet' : 'emerald'}>{game.topic || 'Pública'}</Badge>
                       </CardHeader>
-                      <CardBody className="flex items-center justify-between gap-4">
-                        <div className="text-sm text-white/80">
+                      <CardBody className="flex justify-between items-center gap-4">
+                        <div className="text-white/80 text-sm">
                           <p>Jugadores: {game.players?.length || 0}</p>
                           <p>Anfitrión: {game.players?.[0]?.displayName || 'Desconocido'}</p>
                         </div>
-                        <Button onClick={() => handleJoinPublicGame(game.id)} aria-label={`Unirse a la partida ${game.id}`}>
-                          Unirse
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button onClick={() => handleJoinPublicGame(game.id)} aria-label={`Unirse a la partida ${game.id}`}>
+                            Unirse
+                          </Button>
+                          <Button
+  onClick={() => handleDeleteGame(game.id)}
+  variant="danger"
+  aria-label={`Eliminar la partida ${game.id}`}
+>
+  Eliminar
+</Button>
+                        </div>
                       </CardBody>
                     </Card>
                   </motion.div>
@@ -299,7 +332,7 @@ export default function DashboardPage() {
       </main>
 
       {showAIGenerator && (
-        <Suspense fallback={<div className="container px-4 py-6"><div className="loading-spinner" aria-live="polite" aria-busy="true">Cargando…</div></div>}>
+        <Suspense fallback={<div className="px-4 py-6 container"><div className="loading-spinner" aria-live="polite" aria-busy="true">Cargando…</div></div>}>
           <AIQuestionGenerator
             onQuestionsGenerated={(qs) => {
               handleQuestionsGenerated(qs);
