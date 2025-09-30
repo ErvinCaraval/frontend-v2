@@ -17,7 +17,7 @@ export default function Navbar() {
   const isHome = location.pathname === '/'
 
   return (
-    <header className="bg-transparent backdrop-blur-md border-white/10 border-b w-full">
+    <header className="bg-transparent backdrop-blur-md border-white/10 border-b w-full py-2">
       <div className="flex justify-between items-center mx-auto px-4 py-3 container">
         <Link to="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
           <div className="flex justify-center items-center bg-gradient-to-br from-bb-primary to-bb-accent rounded-md w-10 h-10 font-bold text-xl">⚡</div>

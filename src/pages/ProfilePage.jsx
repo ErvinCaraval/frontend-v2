@@ -51,7 +51,7 @@ export default function ProfilePage() {
     </div>
   );
   return (
-    <div className="container min-h-screen px-4 py-8">
+    <div className="container min-h-screen px-4 py-8 pt-24">
       <Card className="mx-auto max-w-3xl">
         <CardHeader className="flex items-center gap-4">
           <img

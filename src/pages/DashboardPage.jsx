@@ -210,7 +210,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <header className="top-0 z-40 sticky bg-white/5 backdrop-blur-md border-white/10 border-b w-full">
+      <header className="top-0 z-40 sticky bg-white/5 backdrop-blur-md border-white/10 border-b w-full py-2 mb-16">
         <div className="flex md:flex-row flex-col md:justify-between md:items-center gap-4 px-4 py-5 container">
           <h2 className="font-bold text-2xl md:text-3xl tracking-tight">
             ¡Bienvenido, {user?.displayName || user?.email}!
@@ -226,7 +226,7 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className="px-4 py-8 md:py-10 container">
+      <main className="px-4 py-8 md:py-10 container pt-8">
         <div className="gap-6 md:gap-8 grid grid-cols-1 md:grid-cols-2">
           <Section
             title="🎮 Crear nueva partida"

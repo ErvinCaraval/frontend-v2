@@ -316,6 +316,17 @@ p {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
+/* Ensure native <select> dropdown options are readable on light popup backgrounds */
+select option {
+  background: #ffffff;
+  color: #111827;
+}
+select option:checked,
+select option:hover {
+  background: #374151;
+  color: #ffffff;
+}
+
 /* Card System */
 .card {
   background: var(--bb-gradient-surface);

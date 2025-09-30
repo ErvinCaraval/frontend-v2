@@ -169,7 +169,7 @@ export default function GamePage() {
       <main className="space-y-4">
         {question && (
           <Card className="transition hover:shadow-glow">
-            <CardBody className="space-y-4">
+            <CardBody className="space-y-4 pt-4">
               <div className="flex items-start justify-between gap-3 md:gap-4">
                 <div className="min-w-0 flex-1">
                   <Question
