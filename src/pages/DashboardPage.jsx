@@ -306,7 +306,7 @@ export default function DashboardPage() {
                         <h4 className="font-semibold text-xl">Partida #{game.id}</h4>
                         <Badge variant={idx % 2 ? 'violet' : 'emerald'}>{game.topic || 'Pública'}</Badge>
                       </CardHeader>
-                      <CardBody className="flex justify-between items-center gap-4">
+                      <CardBody className="flex sm:flex-row flex-col justify-between items-center gap-4">
                         <div className="text-white/80 text-sm">
                           <p>Jugadores: {game.players?.length || 0}</p>
                           <p>Anfitrión: {game.players?.[0]?.displayName || 'Desconocido'}</p>
